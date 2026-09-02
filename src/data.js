@@ -34,12 +34,11 @@ export const FAM = {
 
 /* ---------- Chapitres du récit (ordre chronologique du live) ---------- */
 export const CHAPITRES = [
-  { id: "outil", titre: "L'outil" },
-  { id: "marche", titre: "Le marché" },
-  { id: "prix", titre: "Les prix" },
+  { id: "marche", titre: "L'état du marché" },
+  { id: "salaires", titre: "Les salaires" },
   { id: "ia", titre: "L'IA" },
-  { id: "angles", titre: "Les angles morts" },
-  { id: "retenir", titre: "Ce qu'on retient" },
+  { id: "postes", titre: "Où sont les postes" },
+  { id: "action", titre: "Ce que tu fais" },
 ];
 
 /* ---------- Volume ---------- */
@@ -131,18 +130,18 @@ export const RUPTURES = [
 /* ---------- Les 3 signaux ---------- */
 export const SIGNAUX = [
   {
-    titre: "Le Fullstack passe devant le Backend",
-    corps: "52 K€ contre 45 K€ de médiane. Ils étaient à 1 K€ d'écart en juin. Le marché paie la polyvalence, plus le volume.",
+    titre: "La polyvalence se paie mieux que la spécialité",
+    corps: "Fullstack à 52 K€ contre 45 pour le backend pur, alors qu'ils étaient à 1 K€ d'écart en juin. Si l'écart continue de se creuser, il faudra revoir les grilles backend à la baisse et les parcours d'évolution vers le fullstack.",
     couleur: "var(--tech)",
   },
   {
-    titre: "L'IA devient un attribut, pas un métier",
-    corps: "Les mentions d'IA progressent de 13,8 % pendant que le marché recule. Le poste AI Engineer, lui, stagne et sa prime s'érode.",
+    titre: "L'IA s'installe dans les postes, pas dans les intitulés",
+    corps: "Les mentions progressent de 13,8 % pendant que le marché recule, mais le poste dédié stagne et sa prime s'érode. À surveiller : le moment où la compétence IA deviendra un prérequis implicite plutôt qu'un argument.",
     couleur: "var(--indigo)",
   },
   {
-    titre: "Le Design sort du radar",
-    corps: "95 offres, et plus assez de salaires renseignés pour publier une médiane depuis juin. Concentration parisienne à 74,7 %.",
+    titre: "Le Design se referme sur Paris",
+    corps: "95 offres seulement, et 74,7 % en Île-de-France contre 70,2 % en juin. Pour un recruteur en région, c'est une fenêtre. Pour un designer hors Paris, c'est le signal qu'il faut viser les scale-ups ouvertes à l'hybride.",
     couleur: "var(--design)",
   },
 ];
@@ -169,11 +168,49 @@ export const TAKEAWAYS = [
   },
 ];
 
-/* ---------- Pipeline ---------- */
-export const PIPELINE = [
-  { etape: "Collecte", detail: "Toutes les offres CDI Tech, Product, Data et Design publiées en France, récupérées chaque début de mois." },
-  { etape: "Dédoublonnage", detail: "Une même offre republiée sur trois plateformes ne compte qu'une fois. C'est là que se joue la fiabilité du volume." },
-  { etape: "Catégorisation", detail: "Chaque intitulé est rattaché à l'un des 28 métiers suivis. Aucune offre ne reste hors périmètre." },
-  { etape: "Arbitrage", detail: "Les cas limites sont tranchés à la main. Ce mois-ci : 33 offres réinjectées, 6 retirées du périmètre." },
-  { etape: "Comparaison", detail: "Chaque métrique est confrontée au mois précédent. C'est la comparaison qui produit l'insight, pas la photo." },
+/* ---------- Plans d'action ---------- */
+export const PLAN_RECRUTEUR = [
+  {
+    action: "Reprends ta grille si elle date de juin",
+    detail: "Le Fullstack a gagné 3 K€ de médiane, le Backend en a perdu 3. Une grille de juin est fausse dans les deux sens.",
+  },
+  {
+    action: "Monte ton plafond Data à 65 K€",
+    detail: "C'est le plafond du marché en septembre, contre 60 K€ en juin. En dessous, tu sors des shortlists sans le savoir.",
+  },
+  {
+    action: "Arrête de créer des postes AI Engineer",
+    detail: "136 offres sur tout le pays, une médiane à 58 K€. Ajoute la compétence IA à un poste existant, c'est ce que fait le marché.",
+  },
+  {
+    action: "Ouvre un poste aux 0-2 ans",
+    detail: "95,8 % des offres exigent plus. Un poste junior te met en concurrence avec presque personne.",
+  },
+  {
+    action: "Cadre le périmètre avant le titre",
+    detail: "Un Tech Lead se négocie entre 52 et 70 K€ selon ce qu'il pilote. Le titre seul ne dit plus rien du niveau.",
+  },
+];
+
+export const PLAN_CANDIDAT = [
+  {
+    action: "Ne négocie pas sur ton titre",
+    detail: "Le Tech Lead a perdu 4 K€ de médiane en quatre mois pendant que son volume montait. Négocie sur le périmètre.",
+  },
+  {
+    action: "Regarde du côté du fullstack",
+    detail: "52 K€ de médiane contre 45 pour le backend pur. L'écart s'est créé cet été, il était de 1 K€ en juin.",
+  },
+  {
+    action: "N'attends rien de l'étiquette IA",
+    detail: "AI Engineer est payé 58 K€, exactement comme un SRE, et sa médiane baisse depuis juin. La compétence vaut mieux que l'intitulé.",
+  },
+  {
+    action: "Renonce au full remote ou assume-le",
+    detail: "0,3 % des offres. L'exiger revient à te fermer 99,7 % du marché. L'hybride, à 15,2 %, est la vraie zone de négociation.",
+  },
+  {
+    action: "Filtre les ESN dès la lecture",
+    detail: "Une offre sur deux vient d'une ESN ou d'un cabinet. Si tu veux du produit, ton marché réel est deux fois plus petit qu'il n'y paraît.",
+  },
 ];

@@ -86,3 +86,52 @@ body {
 @media (min-width: 1024px) {
   .table-scroll > * { min-width: 0; }
 }
+
+/* ===================== Transitions de slide =====================
+   Un seul moment orchestré par changement de slide : le bloc entier
+   glisse dans le sens de la lecture, puis les sections montent en
+   cascade. Le sens du glissement encode la direction du récit. */
+
+@keyframes slide-avant {
+  from { opacity: 0; transform: translate3d(46px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes slide-arriere {
+  from { opacity: 0; transform: translate3d(-46px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes monte {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+.entre-avant  { animation: slide-avant .44s cubic-bezier(.16, 1, .3, 1) both; }
+.entre-arriere { animation: slide-arriere .44s cubic-bezier(.16, 1, .3, 1) both; }
+
+.cascade > * { animation: monte .52s cubic-bezier(.16, 1, .3, 1) both; }
+.cascade > *:nth-child(1) { animation-delay: .05s; }
+.cascade > *:nth-child(2) { animation-delay: .12s; }
+.cascade > *:nth-child(3) { animation-delay: .19s; }
+.cascade > *:nth-child(4) { animation-delay: .26s; }
+.cascade > *:nth-child(5) { animation-delay: .33s; }
+.cascade > *:nth-child(6) { animation-delay: .40s; }
+.cascade > *:nth-child(n + 7) { animation-delay: .46s; }
+
+/* Les lignes de tableau et les cartes arrivent une par une */
+.cascade-fin > * { animation: monte .4s cubic-bezier(.16, 1, .3, 1) both; }
+.cascade-fin > *:nth-child(1) { animation-delay: .20s; }
+.cascade-fin > *:nth-child(2) { animation-delay: .26s; }
+.cascade-fin > *:nth-child(3) { animation-delay: .32s; }
+.cascade-fin > *:nth-child(4) { animation-delay: .38s; }
+.cascade-fin > *:nth-child(5) { animation-delay: .44s; }
+.cascade-fin > *:nth-child(6) { animation-delay: .50s; }
+.cascade-fin > *:nth-child(n + 7) { animation-delay: .56s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .entre-avant, .entre-arriere,
+  .cascade > *, .cascade-fin > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

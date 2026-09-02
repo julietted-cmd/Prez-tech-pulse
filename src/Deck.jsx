@@ -47,7 +47,7 @@ export const Slide = ({ children, center = false, className = "" }) => (
   <div
     className={`h-full w-full flex flex-col ${center ? "items-center justify-center text-center" : "justify-center"} ${className}`}
   >
-    <div className={`w-full ${center ? "max-w-4xl" : "max-w-[1180px]"}`}>{children}</div>
+    <div className={`cascade w-full ${center ? "max-w-4xl" : "max-w-[1180px]"}`}>{children}</div>
   </div>
 );
 
@@ -125,11 +125,117 @@ export const Deux = ({ children, ratio = "1fr 1fr", gap = 56, align = "center" }
   </div>
 );
 
+/* Double lecture. Mécanisme récurrent du deck : chaque chiffre est suivi de
+   ce qu'il implique de part et d'autre du marché. Les deux panneaux ont le
+   même poids visuel, un seul est saturé pour les distinguer à distance. */
+export const Lecture = ({ recruteur, candidat, className = "" }) => (
+  <div className={`grid sm:grid-cols-2 gap-4 ${className}`}>
+    <div
+      className="rounded-xl"
+      style={{
+        background: "linear-gradient(150deg, rgba(57,50,255,0.26), rgba(57,50,255,0.08))",
+        border: "1px solid rgba(114,108,253,0.48)",
+        borderLeft: "3px solid #3932FF",
+        padding: "18px 20px",
+      }}
+    >
+      <div className="font-semibold mb-2" style={{ color: "#C2C0FF", fontSize: 14 }}>
+        Si tu recrutes
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15, lineHeight: 1.5 }}>{recruteur}</div>
+    </div>
+    <div
+      className="rounded-xl"
+      style={{
+        background: "linear-gradient(150deg, rgba(237,236,255,0.13), rgba(237,236,255,0.035))",
+        border: "1px solid rgba(194,192,255,0.42)",
+        borderLeft: "3px solid #C2C0FF",
+        padding: "18px 20px",
+      }}
+    >
+      <div className="font-semibold mb-2" style={{ color: "#EDECFF", fontSize: 14 }}>
+        Si tu cherches un poste
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15, lineHeight: 1.5 }}>{candidat}</div>
+    </div>
+  </div>
+);
+
 export const Glass = ({ children, className = "", style = {} }) => (
   <div className={`glass rounded-2xl ${className}`} style={style}>
     {children}
   </div>
 );
+
+/* Encadré teinté. Le fond coloré remplace le glass gris, trop peu
+   contrasté à la vidéoprojection et en replay compressé.
+   info : commentaire de lecture. alerte : précaution méthodologique.
+   positif : point favorable. */
+const TONS = {
+  info: {
+    fond: "linear-gradient(150deg, rgba(57,50,255,0.20), rgba(57,50,255,0.07))",
+    bord: "rgba(114,108,253,0.42)",
+    accent: "#3932FF",
+    titre: "#C2C0FF",
+  },
+  alerte: {
+    fond: "linear-gradient(150deg, rgba(249,36,65,0.17), rgba(249,36,65,0.05))",
+    bord: "rgba(250,137,153,0.36)",
+    accent: "#F92441",
+    titre: "#FA8999",
+  },
+  positif: {
+    fond: "linear-gradient(150deg, rgba(10,194,108,0.17), rgba(10,194,108,0.05))",
+    bord: "rgba(137,250,198,0.34)",
+    accent: "#0AC26C",
+    titre: "#89FAC6",
+  },
+};
+
+export const Encadre = ({ children, titre, ton = "info", className = "", style = {} }) => {
+  const t = TONS[ton] || TONS.info;
+  return (
+    <div
+      className={`rounded-xl ${className}`}
+      style={{
+        background: t.fond,
+        border: `1px solid ${t.bord}`,
+        borderLeft: `3px solid ${t.accent}`,
+        padding: "18px 20px",
+        ...style,
+      }}
+    >
+      {titre && (
+        <div className="font-semibold mb-1.5" style={{ color: t.titre, fontSize: 14.5, letterSpacing: "-0.005em" }}>
+          {titre}
+        </div>
+      )}
+      <div style={{ color: "rgba(255,255,255,0.86)", fontSize: 14.5, lineHeight: 1.55 }}>{children}</div>
+    </div>
+  );
+};
+
+/* Carte de KPI teintée, lisible de loin */
+export const Carte = ({ chiffre, legende, couleur = "#fff", ton = "info" }) => {
+  const t = TONS[ton] || TONS.info;
+  return (
+    <div
+      className="rounded-xl"
+      style={{
+        background: t.fond,
+        border: `1px solid ${t.bord}`,
+        padding: "20px 20px 18px",
+      }}
+    >
+      <div className="font-extrabold tnum" style={{ fontSize: "clamp(26px, 2.6vw, 36px)", color: couleur, letterSpacing: "-0.025em", lineHeight: 1 }}>
+        {chiffre}
+      </div>
+      <div className="mt-2.5" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.45 }}>
+        {legende}
+      </div>
+    </div>
+  );
+};
 
 /* baseZero : cale l'axe sur 0. Indispensable sur une série stable, sinon
    l'échelle automatique transforme un plateau en effondrement visuel. */
@@ -285,10 +391,22 @@ export default function Deck() {
     return Number.isFinite(h) && h >= 1 && h <= total ? h - 1 : 0;
   });
   const [overview, setOverview] = useState(false);
+  const [sens, setSens] = useState(1);
   const touch = useRef(null);
+  const idxRef = useRef(index);
+
+  useEffect(() => {
+    idxRef.current = index;
+  }, [index]);
 
   const go = useCallback(
-    (n) => setIndex((i) => Math.min(total - 1, Math.max(0, typeof n === "function" ? n(i) : n))),
+    (n) => {
+      const i = idxRef.current;
+      const cible = Math.min(total - 1, Math.max(0, typeof n === "function" ? n(i) : n));
+      if (cible === i) return;
+      setSens(cible > i ? 1 : -1);
+      setIndex(cible);
+    },
     [total]
   );
 
@@ -300,7 +418,10 @@ export default function Deck() {
   useEffect(() => {
     const onHash = () => {
       const h = parseInt(window.location.hash.replace("#", ""), 10);
-      if (Number.isFinite(h) && h >= 1 && h <= total) setIndex(h - 1);
+      if (Number.isFinite(h) && h >= 1 && h <= total) {
+        setSens(h - 1 > idxRef.current ? 1 : -1);
+        setIndex(h - 1);
+      }
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
@@ -424,7 +545,10 @@ export default function Deck() {
                 <Rail index={index} total={total} onJump={go} />
               </div>
             )}
-            <div className="flex-1 min-w-0 h-full overflow-y-auto no-scrollbar" key={index}>
+            <div
+              key={index}
+              className={`flex-1 min-w-0 h-full overflow-y-auto no-scrollbar ${sens > 0 ? "entre-avant" : "entre-arriere"}`}
+            >
               <Current active />
             </div>
           </div>

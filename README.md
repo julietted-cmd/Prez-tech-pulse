@@ -50,21 +50,61 @@ Tout est dans `src/data.js`. Aucune autre modification n'est nécessaire.
 Les tableaux `serie` doivent toujours avoir la même longueur que `MONTHS`, sinon les
 courbes et les sparklines se décalent.
 
-## Structure
+## Conventions
 
+On parle de **salaire**, jamais de prix. Le chapitre 3 s'appelle « Les salaires ».
+
+Trois tons d'encadré, choisis selon la fonction et non selon l'esthétique :
+
+| Ton | Couleur | Usage |
+|---|---|---|
+| `info` | indigo | commentaire de lecture, hypothèse, point à retenir |
+| `alerte` | rouge | précaution méthodologique, chiffre à ne pas surinterpréter |
+| `positif` | vert | point favorable |
+
+```jsx
+<Encadre ton="alerte" titre="Ne pas comparer à juin">Texte</Encadre>
+<Carte chiffre="+24 %" legende="…" ton="positif" couleur="#89FAC6" />
 ```
-src/data.js     tous les chiffres et tous les textes de contenu
-src/slides.jsx  les 18 slides, dans l'ordre du récit
-src/Deck.jsx    navigation, rail de chapitres, composants visuels
-src/index.css   tokens de couleur, grille TPC, effet glass
+
+## Transitions
+
+Un seul moment orchestré par changement de slide. Le bloc entier glisse dans le sens
+de la lecture (vers la gauche en avançant, vers la droite en revenant), puis les
+sections montent en cascade sur environ 500 ms.
+
+- `.entre-avant` / `.entre-arriere` : glissement directionnel du bloc
+- `.cascade` : montée échelonnée des blocs de premier niveau, appliquée par le composant `Slide`
+- `.cascade-fin` : montée échelonnée des lignes de tableau et des cartes, à ajouter au conteneur
+
+Les compteurs des grands chiffres s'animent une fois à l'entrée de la slide.
+
+Tout est neutralisé si le système est réglé sur « réduire les animations ».
+
+## Le fil du live
+
+Cinq chapitres, tous orientés décision et non fonctionnement de l'outil.
+
+1. **L'état du marché** — volume, ralentissement, concentration sur quatre métiers
+2. **Les salaires** — le découplage volume / salaire, le cas Tech Lead, les fourchettes par famille
+3. **L'IA** — diffusion réelle et absence de métier dédié
+4. **Où sont les postes** — Data contre Design, junior, remote, poids des ESN
+5. **Ce que tu fais** — les trois signaux, puis un plan d'action recruteur et un plan candidat
+
+Chaque slide de données se termine par un bloc de double lecture : « Si tu recrutes » en
+indigo saturé, « Si tu cherches un poste » en lavande. C'est le mécanisme central de la
+prez : aucun chiffre n'est présenté sans ce qu'il implique de part et d'autre du marché.
+
+```jsx
+<Lecture
+  recruteur="Ce que le chiffre change côté employeur."
+  candidat="Ce qu'il change côté candidat."
+/>
 ```
 
-Pour réordonner le récit, déplacer les blocs dans le tableau `SLIDES` de `slides.jsx`.
-Le rail de chapitres et le compteur se recalculent seuls.
+## Structure## Sources et précautions
 
-## Sources et précautions
-
-Données : TPC Pulse, runs du 2 juin au 1er septembre 2026.
+Données : TPC Pulse, runs du 2 juin au 1er septembre 2026. 5 271 offres CDI au dernier run, 28 métiers suivis.
 
 Deux points à garder en tête en live :
 
