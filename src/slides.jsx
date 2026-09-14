@@ -26,14 +26,29 @@ import {
   LIVE,
   MONTHS,
   FAM,
+  CHAPITRES,
+  POURQUOI,
+  METHODE_ETAPES,
+  METHODE_LIMITES,
+  USAGE_CANDIDAT,
+  USAGE_ENTREPRISE,
+  AFFECTES,
   VOLUME,
   METIERS,
+  MONTENT,
+  DESCENDENT,
   SALAIRES,
-  FOURCHETTES,
+  AMPLITUDE,
+  DECILES,
+  VILLES,
+  ECART_PARIS,
+  EXPERIENCE,
+  RECRUTEURS,
+  CONCENTRATION,
+  EMPLOYEURS_BACKEND,
   IA,
   PORTES,
-  RECRUTEURS,
-  RECRUTEURS_PAR_FAM,
+  NON_PUBLIABLE,
   SIGNAUX,
   TAKEAWAYS,
   PLAN_RECRUTEUR,
@@ -51,14 +66,13 @@ const tooltipStyle = {
 
 const axis = { stroke: "rgba(255,255,255,0.28)", fontSize: 12 };
 
+/* Barre horizontale simple, utilisée partout où il faut comparer des parts. */
 const Bar = ({ label, value, max, color, right, sub }) => (
   <div className="mb-3">
     <div className="flex items-baseline justify-between mb-1.5 gap-4">
       <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 15 }}>
         {label}
-        {sub && (
-          <span style={{ color: "rgba(255,255,255,0.34)", marginLeft: 8, fontSize: 12 }}>{sub}</span>
-        )}
+        {sub && <span style={{ color: "rgba(255,255,255,0.34)", marginLeft: 8, fontSize: 12 }}>{sub}</span>}
       </span>
       <span className="tnum font-semibold" style={{ color: "#fff", fontSize: 15 }}>
         {right}
@@ -70,16 +84,11 @@ const Bar = ({ label, value, max, color, right, sub }) => (
   </div>
 );
 
-/* Ligne de plan d'action */
+/* Ligne de plan d'action, numérotée. */
 const Action = ({ n, action, detail, accent, tint }) => (
   <div
     className="rounded-xl mb-3"
-    style={{
-      background: tint,
-      border: `1px solid ${accent}55`,
-      borderLeft: `3px solid ${accent}`,
-      padding: "14px 18px",
-    }}
+    style={{ background: tint, border: `1px solid ${accent}55`, borderLeft: `3px solid ${accent}`, padding: "14px 18px" }}
   >
     <div className="flex gap-3.5">
       <span className="tnum font-bold" style={{ color: accent, fontSize: 15, lineHeight: 1.4, minWidth: 14 }}>
@@ -96,6 +105,69 @@ const Action = ({ n, action, detail, accent, tint }) => (
     </div>
   </div>
 );
+
+/* Variation d'un métier sur quatre mois, avec sa courbe. */
+const Mouvement = ({ item, sens }) => {
+  const couleur = sens === "haut" ? "#0AC26C" : "#F92441";
+  return (
+    <div
+      className="rounded-xl"
+      style={{ background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.10)", padding: "16px 18px" }}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-white font-semibold" style={{ fontSize: 15.5, letterSpacing: "-0.01em" }}>
+          {item.nom}
+        </span>
+        <span className="tnum font-extrabold" style={{ color: couleur, fontSize: 19 }}>
+          {item.var > 0 ? "+" : ""}
+          {fmtDec(item.var)} %
+        </span>
+      </div>
+      <div className="mt-2.5">
+        <Sparkline serie={item.serie} color={couleur} height={40} />
+      </div>
+      <div className="tnum mt-1" style={{ color: "rgba(255,255,255,0.38)", fontSize: 12 }}>
+        {item.serie[0]} → {item.serie[item.serie.length - 1]} annonces
+      </div>
+    </div>
+  );
+};
+
+/* Une ligne de déciles : la moitié des annonces dans la bande claire. */
+const LigneDecile = ({ d, max }) => {
+  const pc = (v) => `${(v / max) * 100}%`;
+  return (
+    <div className="mb-3.5">
+      <div className="flex items-baseline justify-between mb-1.5 gap-4">
+        <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 14.5 }}>
+          {d.nom}
+          <span style={{ color: "rgba(255,255,255,0.32)", marginLeft: 8, fontSize: 12 }}>n={d.n}</span>
+        </span>
+        <span className="tnum font-semibold" style={{ color: "#fff", fontSize: 15 }}>
+          {fmtDec(d.med)} K€
+        </span>
+      </div>
+      <div style={{ position: "relative", height: 14, borderRadius: 4, background: "rgba(255,255,255,0.06)" }}>
+        <div
+          style={{
+            position: "absolute",
+            left: pc(d.p25),
+            width: pc(d.p75 - d.p25),
+            top: 0,
+            bottom: 0,
+            background: "rgba(255,255,255,0.22)",
+            borderRadius: 4,
+          }}
+        />
+        <div style={{ position: "absolute", left: pc(d.med), top: -2, bottom: -2, width: 2.5, background: "#fff", borderRadius: 2 }} />
+        <div style={{ position: "absolute", left: pc(d.p90), top: 2, bottom: 2, width: 1.5, background: "rgba(255,255,255,0.45)" }} />
+      </div>
+      <div className="tnum mt-1" style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
+        la moitié entre {fmtDec(d.p25)} et {fmtDec(d.p75)} K€ · 10 % au-dessus de {fmtDec(d.p90)} K€
+      </div>
+    </div>
+  );
+};
 
 /* ======================= LES SLIDES ======================= */
 
@@ -116,12 +188,9 @@ export const SLIDES = [
           className="font-extrabold text-white"
           style={{ fontSize: "clamp(38px, 6.2vw, 86px)", lineHeight: 0.95, letterSpacing: "-0.035em", maxWidth: "21ch" }}
         >
-          Le marché tech français en 5 271 offres
+          {LIVE.titre}
         </h1>
-        <div
-          className="mt-6"
-          style={{ color: "rgba(255,255,255,0.62)", fontSize: "clamp(16px, 1.5vw, 21px)", maxWidth: "54ch", lineHeight: 1.45 }}
-        >
+        <div className="mt-6" style={{ color: "rgba(255,255,255,0.62)", fontSize: "clamp(16px, 1.5vw, 21px)", maxWidth: "54ch", lineHeight: 1.45 }}>
           Ce que les chiffres de septembre changent pour vos recrutements et pour vos négociations.
         </div>
         <div className="mt-10 flex flex-wrap items-end gap-x-14 gap-y-6">
@@ -135,533 +204,499 @@ export const SLIDES = [
               </div>
             </div>
           ))}
-          <div style={{ marginLeft: "auto" }}>
-            <div className="text-white font-semibold" style={{ fontSize: 18 }}>
-              {LIVE.date}
-            </div>
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 14.5 }}>{LIVE.heure}</div>
-          </div>
         </div>
       </Slide>
     ),
   },
 
-  /* ---------- 02 Le volume ---------- */
+  /* ---------- 02 Sommaire ---------- */
   {
-    nav: "Le marché ralentit",
-    chapitre: "marche",
+    nav: "Sommaire",
+    chapitre: null,
+    render: () => (
+      <Slide>
+        <Kicker>Le déroulé</Kicker>
+        <Titre>Au programme</Titre>
+        <div className="mt-8 grid sm:grid-cols-2 gap-4">
+          {CHAPITRES.map((ch, i) => (
+            <div
+              key={ch.id}
+              className="rounded-xl flex items-baseline gap-4"
+              style={{ background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.10)", padding: "18px 22px" }}
+            >
+              <span className="tnum font-extrabold" style={{ color: "var(--signal)", fontSize: 26, letterSpacing: "-0.03em", minWidth: 40 }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <div className="text-white font-semibold" style={{ fontSize: 18, letterSpacing: "-0.01em" }}>
+                  {ch.titre}
+                </div>
+                <div className="mt-1" style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, lineHeight: 1.45 }}>
+                  {
+                    [
+                      "Pourquoi on publie des chiffres que tout le monde garde pour soi",
+                      "Comment on les fabrique, et ce qu'ils ne disent pas",
+                      "Ce que vous en faites, candidat ou recruteur",
+                      "Les chiffres de septembre, un par un",
+                      "Le Career Score et le coaching en direct",
+                    ][i]
+                  }
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <Corps className="mt-7">
+          Les questions dans le chat au fil de l'eau. On garde les quinze dernières minutes pour les traiter avec les
+          chiffres sous les yeux.
+        </Corps>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 03 Pourquoi ce baromètre ---------- */
+  {
+    nav: "Pourquoi",
+    chapitre: "intro",
+    render: () => (
+      <Slide>
+        <Kicker>Le point de départ</Kicker>
+        <Titre>Tout le monde a ces données. Personne ne les publie.</Titre>
+        <div className="mt-10 space-y-4">
+          {POURQUOI.map((p, i) => (
+            <div
+              key={p.titre}
+              className="rounded-xl"
+              style={{
+                background: i === 0 ? "linear-gradient(150deg, rgba(249,36,65,0.15), rgba(249,36,65,0.04))" : "rgba(255,255,255,0.035)",
+                border: `1px solid ${i === 0 ? "rgba(250,137,153,0.34)" : "rgba(255,255,255,0.10)"}`,
+                padding: "26px 28px",
+              }}
+            >
+              <div className="text-white font-semibold" style={{ fontSize: "clamp(19px, 2vw, 25px)", letterSpacing: "-0.02em", lineHeight: 1.25 }}>
+                {p.titre}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 04 La méthode ---------- */
+  {
+    nav: "Méthode",
+    chapitre: "methode",
+    render: () => (
+      <Slide>
+        <Kicker>Comment c'est fabriqué</Kicker>
+        <Titre>De 21 186 annonces brutes à 6 373 publiées</Titre>
+        <div className="mt-10 grid sm:grid-cols-5 gap-3">
+          {METHODE_ETAPES.map((e) => (
+            <div
+              key={e.n}
+              className="rounded-xl"
+              style={{ background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.10)", padding: "26px 20px" }}
+            >
+              <div className="tnum font-extrabold" style={{ color: "var(--signal)", fontSize: 26, letterSpacing: "-0.03em" }}>
+                {e.n}
+              </div>
+              <div className="text-white font-semibold mt-3" style={{ fontSize: 18, letterSpacing: "-0.015em" }}>
+                {e.titre}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 05 Ce que la méthode ne dit pas ---------- */
+  {
+    nav: "Limites",
+    chapitre: "methode",
+    render: () => (
+      <Slide>
+        <Kicker color="var(--danger)">Les limites, dites d'entrée</Kicker>
+        <Titre>Ce que ces chiffres ne mesurent pas</Titre>
+        <div className="mt-8 grid sm:grid-cols-2 gap-4">
+          {METHODE_LIMITES.map((l) => (
+            <Encadre key={l.titre} titre={l.titre} ton="alerte">
+              {l.corps}
+            </Encadre>
+          ))}
+        </div>
+      </Slide>
+    ),
+  },
+
+  /* ================= LES INSIGHTS — un chiffre par slide =================
+     Ordre du récit : l'état général d'abord, puis ce qui bouge, puis les
+     chiffres clés, puis ce qu'on en retient. Une slide = une idée. */
+
+  /* ---------- 06 Le volume ---------- */
+  {
+    nav: "6 373 annonces",
+    chapitre: "insights",
     render: ({ active }) => (
       <Slide>
         <Kicker>L'état du marché</Kicker>
-        <Deux ratio="1.05fr 1fr">
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
           <div>
-            <BigNum value={5271} unite="offres CDI ouvertes en septembre" active={active} />
-            <div className="mt-8" style={{ maxWidth: 380 }}>
-              <Sparkline serie={VOLUME.serie} labels={MONTHS} color="#fff" />
-            </div>
+            <BigNum value={6373} active={active} unite="annonces publiées en septembre" />
           </div>
           <div>
-            <Titre size={2}>Le marché ne se ferme pas, il ralentit</Titre>
-            <Corps className="mt-5">
-              5 591 offres au pic de juillet, 5 271 en septembre. Les quatre familles reculent au
-              même rythme, entre 4 et 9 %. Ce n'est pas un secteur qui décroche, c'est la demande
-              globale qui se tasse.
+            <Corps>
+              Tous les CDI tech, product, data et design publiés en France métropolitaine sur Welcome to the Jungle et
+              Hello Work, après dédoublonnage.
             </Corps>
           </div>
         </Deux>
-        <Lecture
-          className="mt-9"
-          recruteur="Moins d'annonces concurrentes qu'en juillet, mais aussi moins de candidats en mouvement. Le volume d'offres ne mesure pas ta difficulté à recruter, il mesure ta visibilité."
-          candidat="5 271 postes ouverts, ça reste beaucoup. Attends-toi en revanche à des process plus longs et à davantage de candidats par poste qu'au printemps."
-        />
       </Slide>
     ),
   },
 
-  /* ---------- 03 Concentration ---------- */
+  /* ---------- 07 Ce qui monte ---------- */
   {
-    nav: "Quatre métiers, la moitié du marché",
-    chapitre: "marche",
-    render: () => {
-      const max = Math.max(...METIERS.map((m) => m.n));
-      return (
-        <Slide>
-          <Kicker>L'état du marché</Kicker>
-          <Titre size={2}>Quatre métiers font la moitié du marché</Titre>
-          <Deux ratio="1.2fr 1fr" gap={52} align="start">
-            <div className="mt-6">
-              {METIERS.slice(0, 8).map((m) => (
-                <Bar key={m.nom} label={m.nom} value={m.n} max={max} color={FAM[m.fam]} right={fmtNum(m.n)} />
-              ))}
-            </div>
-            <div className="mt-6">
-              <Corps>
-                Backend, Tech Lead, DevOps et Fullstack cumulent 49,8 % des offres du pays. Sur ces
-                quatre intitulés, tout le monde se dispute les mêmes profils avec les mêmes mots.
-              </Corps>
-              <Encadre ton="info" className="mt-6">
-                À l'autre bout, le Design pèse 95 offres, soit 1,8 % du marché. Deux réalités qui
-                n'ont rien à voir.
-              </Encadre>
-            </div>
-          </Deux>
-          <Lecture
-            className="mt-8"
-            recruteur="Sur ces quatre métiers, ton annonce est indifférenciable. Ce qui te fera gagner, c'est ton délai de réponse et ton package, pas ta rédaction."
-            candidat="Si ton intitulé est dans le top 4, tu es interchangeable sur le papier. Mets en avant le domaine et la profondeur technique, pas le titre."
-          />
-        </Slide>
-      );
-    },
+    nav: "Ce qui monte",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker color="#0AC26C">La tendance</Kicker>
+        <Titre>Ce qui monte</Titre>
+        <Corps className="mt-3">
+          Quatre métiers en hausse depuis juin, sur des séries que le changement de méthode n'a pas touchées.
+        </Corps>
+        <div className="mt-8 grid sm:grid-cols-4 gap-3">
+          {MONTENT.map((m) => (
+            <Mouvement key={m.nom} item={m} sens="haut" />
+          ))}
+        </div>
+      </Slide>
+    ),
   },
 
-  /* ---------- 04 Le salaire décroche ---------- */
+  /* ---------- 08 Ce qui descend ---------- */
   {
-    nav: "Le salaire décroche du volume",
-    chapitre: "salaires",
-    render: () => {
-      const data = MONTHS.map((m, i) => {
-        const row = { mois: m };
-        SALAIRES.forEach((s) => (row[s.nom] = s.serie[i]));
-        return row;
-      });
-      return (
-        <Slide>
-          <Kicker>Les salaires</Kicker>
-          <Titre size={2}>Le salaire a décroché du volume</Titre>
-          <Deux ratio="1.5fr 1fr" gap={44} align="start">
-            <div className="mt-5">
-              <div style={{ height: 262 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data} margin={{ top: 8, right: 24, bottom: 4, left: -18 }}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
-                    <XAxis dataKey="mois" tick={axis} axisLine={false} tickLine={false} />
-                    <YAxis domain={[42, 66]} tick={axis} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}K`} />
-                    <Tooltip
-                      contentStyle={tooltipStyle}
-                      itemStyle={{ color: "#fff" }}
-                      labelStyle={{ color: "rgba(255,255,255,0.6)" }}
-                      formatter={(v) => [`${v} K€`, ""]}
-                    />
-                    {SALAIRES.map((s) => (
-                      <Line
-                        key={s.nom}
-                        type="monotone"
-                        dataKey={s.nom}
-                        stroke={s.couleur}
-                        strokeWidth={2.4}
-                        dot={{ r: 3, strokeWidth: 0, fill: s.couleur }}
-                        activeDot={{ r: 5 }}
-                        isAnimationActive={false}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 pl-3">
-                {SALAIRES.map((s) => (
-                  <span key={s.nom} className="flex items-center gap-2" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-                    <span style={{ width: 10, height: 3, borderRadius: 2, background: s.couleur }} />
-                    {s.nom} <span className="tnum" style={{ color: "#fff", fontWeight: 600 }}>{s.serie[3]} K€</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="mt-5">
-              <Corps>
-                Le Fullstack est passé au-dessus du Backend cet été. Ils étaient à 1 K€ d'écart en
-                juin, ils en sont à 7.
-              </Corps>
-              <Corps className="mt-4">
-                Le Backend est le premier métier de France en volume. C'est aussi le seul dont la
-                médiane baisse chaque mois depuis juin.
-              </Corps>
-            </div>
-          </Deux>
-          <Lecture
-            className="mt-7"
-            recruteur="Une grille datée de juin est fausse dans les deux sens : trop haute sur le backend, sous le marché de 4 K€ sur le fullstack."
-            candidat="Le poste le plus demandé du pays est le moins bien valorisé. Élargir ton scope vers le fullstack vaut 7 K€ de médiane."
-          />
-        </Slide>
-      );
-    },
+    nav: "Ce qui descend",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker color="var(--danger)">La tendance</Kicker>
+        <Titre>Ce qui se referme</Titre>
+        <Corps className="mt-3">
+          Mêmes règles : aucune de ces quatre séries n'est affectée par le changement de méthode. Les reculs sont
+          réels.
+        </Corps>
+        <div className="mt-8 grid sm:grid-cols-4 gap-3">
+          {DESCENDENT.map((m) => (
+            <Mouvement key={m.nom} item={m} sens="bas" />
+          ))}
+        </div>
+      </Slide>
+    ),
   },
 
-  /* ---------- 05 Tech Lead ---------- */
+  /* ---------- 09 Où sont les annonces ---------- */
   {
-    nav: "Le titre ne dit plus le niveau",
-    chapitre: "salaires",
-    render: ({ active }) => (
+    nav: "Top métiers",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker>Où sont les annonces</Kicker>
+        <Titre>Deux métiers concentrent 37 % du marché</Titre>
+        <div className="mt-8">
+          {METIERS.map((m) => (
+            <Bar
+              key={m.nom}
+              label={m.nom}
+              value={m.n}
+              max={METIERS[0].n}
+              color={FAM[m.fam]}
+              right={fmtNum(m.n)}
+            />
+          ))}
+        </div>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 10 L'amplitude des salaires ---------- */
+  {
+    nav: "46 – 82,5 K€",
+    chapitre: "insights",
+    render: () => (
       <Slide>
         <Kicker>Les salaires</Kicker>
-        <Deux ratio="0.85fr 1.15fr">
+        <Deux ratio="0.95fr 1.05fr" gap={48}>
           <div>
-            <BigNum value={7} suffix=" %" active={active} unite="de volume en plus sur le Tech Lead" />
-            <div className="mt-9">
-              <BigNum value={-4} suffix=" K€" active={active} unite="de médiane en moins" color="var(--signal)" />
+            <div className="font-extrabold tnum text-white" style={{ fontSize: "clamp(46px, 8.4vw, 110px)", lineHeight: 0.9, letterSpacing: "-0.04em" }}>
+              46&#8202;–&#8202;82,5
+              <span style={{ fontSize: "0.3em", marginLeft: 4 }}> K€</span>
+            </div>
+            <div className="mt-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: "clamp(14px, 1.3vw, 19px)" }}>
+              du métier le moins payé au mieux payé
             </div>
           </div>
           <div>
-            <Titre size={2}>Plus recruté, moins payé</Titre>
-            <Corps className="mt-5">
-              638 offres de Tech Lead en juin, 682 en septembre. Et une médiane qui passe de 56 à
-              52 K€. C'est le seul métier du marché où la demande monte et le salaire descend.
+            <Corps>
+              Développeur Backend à 46 K€, Engineering Manager à 82,5 K€. Ce sont des médianes de métiers, toutes
+              séniorités confondues.
             </Corps>
-            <Encadre ton="info" titre="Ce que ça révèle" className="mt-5">
-              Le titre de Tech Lead couvre désormais des périmètres très différents, du lead
-              technique de trois personnes au manager d'équipe. Il ne dit plus rien du niveau.
+          </div>
+        </Deux>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 12 Le taux d'affichage ---------- */
+  {
+    nav: "11,4 % affichent",
+    chapitre: "insights",
+    render: ({ active }) => (
+      <Slide>
+        <Kicker>Les salaires</Kicker>
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
+          <div>
+            <BigNum value={11.4} decimals={1} suffix="%" active={active} unite="des annonces affichent un salaire" color="#F92441" />
+          </div>
+          <div>
+            <Corps>726 annonces sur 6 373. Les autres ne publient rien.</Corps>
+          </div>
+        </Deux>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 13 Le prix de la ville ---------- */
+  {
+    nav: "+12,8 K€ à Paris",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker>Ce qui fait bouger le salaire</Kicker>
+        <Titre>Le même poste vaut 12,8 K€ de plus à Paris</Titre>
+        <div className="mt-7">
+          {VILLES.map((v) => (
+            <Bar
+              key={v.nom}
+              label={v.nom}
+              value={v.med}
+              max={VILLES[0].med}
+              color={v.ecart === 0 ? "#F92441" : "rgba(249,36,65,0.55)"}
+              right={v.ecart ? `${fmtDec(v.med)} K€    ${fmtDec(v.ecart)}` : `${fmtDec(v.med)} K€    référence`}
+            />
+          ))}
+        </div>
+        <Encadre titre="Ce n'est pas un effet de composition" ton="positif" className="mt-5">
+          On pourrait croire que Paris paie plus parce qu'on y trouve plus de postes bien rémunérés. En comparant
+          métier par métier, l'écart reste de 12,8 K€, contre 15,0 K€ en comparaison brute. C'est bien le même poste
+          qui est payé plus cher.
+        </Encadre>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 14 Le prix de l'expérience ---------- */
+  {
+    nav: "+8,7 K€ d'expérience",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker>Ce qui fait bouger le salaire</Kicker>
+        <Titre>Une marche, pas une courbe</Titre>
+        <div className="mt-10 flex flex-wrap items-center gap-7">
+          {EXPERIENCE.map((e, i) => (
+            <React.Fragment key={e.tranche}>
+              <div
+                className="rounded-xl"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)", padding: "26px 34px" }}
+              >
+                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 15 }}>{e.tranche} d'expérience</div>
+                <div className="font-extrabold tnum text-white" style={{ fontSize: 62, lineHeight: 1.05, letterSpacing: "-0.035em" }}>
+                  {fmtDec(e.med)}
+                  <span style={{ fontSize: 24, color: "rgba(255,255,255,0.5)" }}> K€</span>
+                </div>
+              </div>
+              {i === 0 && (
+                <div className="font-extrabold tnum" style={{ color: "#0AC26C", fontSize: 34, whiteSpace: "nowrap" }}>
+                  → +8,7 K€
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <Encadre titre="Pourquoi on s'arrête à 8 ans" ton="alerte" className="mt-8">
+          Au-delà, 18 annonces seulement affichent un salaire.
+        </Encadre>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 15 Qui publie ---------- */
+  {
+    nav: "52,9 % d'intermédiaires",
+    chapitre: "insights",
+    render: ({ active }) => (
+      <Slide>
+        <Kicker>Qui publie</Kicker>
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
+          <div>
+            <BigNum value={52.9} decimals={1} suffix="%" active={active} unite="des annonces viennent d'une ESN ou d'un cabinet" />
+          </div>
+          <div>
+            <Corps className="mb-5">Une annonce sur deux ne vient pas de l'entreprise où vous travaillerez.</Corps>
+            {RECRUTEURS.map((r) => (
+              <Bar
+                key={r.nom}
+                label={r.nom}
+                value={r.pct}
+                max={RECRUTEURS[0].pct}
+                color={r.nom.includes("ESN") || r.nom.includes("Cabinet") ? "#F92441" : "rgba(255,255,255,0.35)"}
+                right={`${fmtDec(r.pct)} %`}
+              />
+            ))}
+          </div>
+        </Deux>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 16 La concentration ---------- */
+  {
+    nav: "Dix employeurs",
+    chapitre: "insights",
+    render: ({ active }) => (
+      <Slide>
+        <Kicker>Qui publie</Kicker>
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
+          <div>
+            <BigNum value={258} active={active} unite="des 1 275 annonces backend viennent de dix employeurs" />
+            <Corps className="mt-6">
+              Une annonce backend sur cinq. Vous n'êtes pas face à 1 275 entreprises, mais à une poignée d'acteurs qui
+              publient en volume.
+            </Corps>
+          </div>
+          <div>
+            <div className="font-semibold mb-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
+              Les huit premiers employeurs sur le backend
+            </div>
+            {EMPLOYEURS_BACKEND.map((e, i) => (
+              <div key={e.nom} className="flex items-center gap-3 mb-2.5">
+                <span className="tnum" style={{ width: 18, color: "rgba(255,255,255,0.3)", fontSize: 13, textAlign: "right" }}>
+                  {i + 1}
+                </span>
+                <span style={{ width: 130, color: "rgba(255,255,255,0.9)", fontSize: 14.5 }}>{e.nom}</span>
+                <span style={{ flex: 1, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.07)" }}>
+                  <span
+                    style={{
+                      display: "block",
+                      height: "100%",
+                      borderRadius: 4,
+                      width: `${(e.n / EMPLOYEURS_BACKEND[0].n) * 100}%`,
+                      background: "#F92441",
+                    }}
+                  />
+                </span>
+                <span className="tnum font-semibold" style={{ width: 68, textAlign: "right", color: "#fff", fontSize: 14 }}>
+                  {e.n}
+                </span>
+              </div>
+            ))}
+            <div className="mt-4" style={{ color: "rgba(255,255,255,0.45)", fontSize: 13.5, lineHeight: 1.5 }}>
+              Les huit sont des ESN. Aucun employeur final n'apparaît dans le haut du classement.
+            </div>
+          </div>
+        </Deux>
+      </Slide>
+    ),
+  },
+
+  /* ---------- 17 L'IA ---------- */
+  {
+    nav: "L'IA",
+    chapitre: "insights",
+    render: ({ active }) => (
+      <Slide>
+        <Kicker>L'IA</Kicker>
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
+          <div>
+            <BigNum value={220} active={active} unite="annonces exigent la compétence IA" color="#A19DFF" />
+            <Corps className="mt-6">
+              Et 371 de plus la mentionnent sans l'exiger. L'IA apparaît dans 512 annonces au total, soit une sur huit.
+            </Corps>
+          </div>
+          <div>
+            <div className="font-semibold mb-3" style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
+              Part des annonces mentionnant l'IA
+            </div>
+            <Sparkline serie={IA.part} labels={MONTHS} color="#A19DFF" height={70} baseZero />
+            <div className="tnum mt-3" style={{ color: "rgba(255,255,255,0.45)", fontSize: 13.5 }}>
+              8,0 % en juin · 7,8 % en juillet · 8,6 % en août · 8,0 % en septembre
+            </div>
+            <Encadre titre="L'étiquette ne prend pas, la compétence si" className="mt-5">
+              Le poste d'AI Engineer passe de 145 annonces en juin à 131 en septembre, soit −9,7 %. Pendant ce temps,
+              la compétence continue d'apparaître dans les fiches de postes existantes. On n'embauche pas un
+              spécialiste IA, on demande l'IA à tout le monde.
             </Encadre>
           </div>
         </Deux>
-        <Lecture
-          className="mt-8"
-          recruteur="Cadre le périmètre avant de cadrer le salaire. Un Tech Lead se négocie entre 52 et 70 K€ selon la taille d'équipe et le pouvoir de décision technique."
-          candidat="Un passage Tech Lead n'est plus automatiquement une augmentation. Négocie sur ce que tu pilotes, pas sur la ligne de ton CV."
-        />
       </Slide>
     ),
   },
 
-  /* ---------- 06 Les fourchettes ---------- */
+  /* ---------- 18 Le télétravail ---------- */
   {
-    nav: "Qui gagne, qui perd",
-    chapitre: "salaires",
-    render: () => (
-      <Slide>
-        <Kicker>Les salaires</Kicker>
-        <Titre size={2}>La fourchette monte. Pas pour tout le monde.</Titre>
-        <div className="mt-7 table-scroll">
-          <div className="cascade-fin">
-            <div
-              className="grid gap-4 pb-3"
-              style={{
-                gridTemplateColumns: "140px 1fr 1fr 1.4fr",
-                borderBottom: "1px solid rgba(255,255,255,0.14)",
-                color: "rgba(255,255,255,0.42)",
-                fontSize: 13,
-              }}
-            >
-              <span>Famille</span>
-              <span>Juin</span>
-              <span>Septembre</span>
-              <span>Ce que ça veut dire</span>
-            </div>
-            {FOURCHETTES.map((f) => (
-              <div
-                key={f.nom}
-                className="grid gap-4 py-3.5 items-baseline"
-                style={{ gridTemplateColumns: "140px 1fr 1fr 1.4fr", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <span className="text-white font-semibold" style={{ fontSize: 16 }}>
-                  {f.nom}
-                </span>
-                <span className="tnum" style={{ color: "rgba(255,255,255,0.45)", fontSize: 16 }}>
-                  {f.juin} K€
-                </span>
-                <span className="tnum font-semibold" style={{ fontSize: 16, color: f.sens === "up" ? "#89FAC6" : "#FA8999" }}>
-                  {f.sept} K€
-                </span>
-                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 14.5 }}>{f.note}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <Lecture
-          className="mt-7"
-          recruteur="Si tu recrutes en Data, ton plafond doit monter à 65 K€, sinon tu sors des shortlists sans le savoir. Si tu recrutes en Tech, la pression a baissé."
-          candidat="Data et Product sont les deux familles où la demande te porte. En Tech, il faut argumenter : le plafond du marché a reculé."
-        />
-      </Slide>
-    ),
-  },
-
-  /* ---------- 07 L'IA en chiffres ---------- */
-  {
-    nav: "L'IA dans les offres",
-    chapitre: "ia",
-    render: ({ active }) => {
-      const data = MONTHS.map((m, i) => ({
-        mois: m,
-        "Offres citant l'IA": IA.mentions[i],
-        "Offres AI Engineer": IA.aiEngineer[i],
-      }));
-      return (
-        <Slide>
-          <Kicker>L'IA</Kicker>
-          <Deux ratio="1fr 1.3fr" gap={44} align="start">
-            <div>
-              <BigNum value={9.3} decimals={1} suffix=" %" active={active} unite="des offres citent l'IA dans l'intitulé" />
-              <Corps className="mt-7">
-                En volume, 429 offres en juin, 488 en septembre. L'IA progresse de 13,8 % pendant que
-                le marché total recule.
-              </Corps>
-              <Corps className="mt-4">
-                Mais le métier dédié stagne. 145 offres d'AI Engineer en juin, 136 en septembre. Et
-                sa médiane s'érode, de 62 à 58 K€.
-              </Corps>
-            </div>
-            <div className="mt-2">
-              <div style={{ height: 288 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data} margin={{ top: 8, right: 20, bottom: 4, left: -14 }}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
-                    <XAxis dataKey="mois" tick={axis} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 560]} tick={axis} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      contentStyle={tooltipStyle}
-                      itemStyle={{ color: "#fff" }}
-                      labelStyle={{ color: "rgba(255,255,255,0.6)" }}
-                      formatter={(v) => [`${v} offres`, ""]}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="Offres citant l'IA"
-                      stroke="#726CFD"
-                      strokeWidth={2.6}
-                      dot={{ r: 3, strokeWidth: 0, fill: "#726CFD" }}
-                      isAnimationActive={false}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="Offres AI Engineer"
-                      stroke="rgba(255,255,255,0.45)"
-                      strokeWidth={2.2}
-                      strokeDasharray="5 4"
-                      dot={{ r: 3, strokeWidth: 0, fill: "rgba(255,255,255,0.55)" }}
-                      isAnimationActive={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex gap-6 mt-3 pl-3" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-                <span className="flex items-center gap-2">
-                  <span style={{ width: 12, height: 3, borderRadius: 2, background: "#726CFD" }} />
-                  Offres citant l'IA
-                </span>
-                <span className="flex items-center gap-2">
-                  <span style={{ width: 12, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.45)" }} />
-                  Offres AI Engineer
-                </span>
-              </div>
-            </div>
-          </Deux>
-        </Slide>
-      );
-    },
-  },
-
-  /* ---------- 08 L'IA est un attribut ---------- */
-  {
-    nav: "L'IA est un attribut",
-    chapitre: "ia",
-    render: () => (
-      <Slide>
-        <Kicker>L'IA</Kicker>
-        <h2
-          className="font-bold text-white"
-          style={{ fontSize: "clamp(28px, 4.2vw, 56px)", lineHeight: 1.03, letterSpacing: "-0.03em", maxWidth: "25ch" }}
-        >
-          L'IA est devenue un attribut des postes existants, pas une famille de métiers
-        </h2>
-        <div className="mt-8 grid sm:grid-cols-3 gap-4 cascade-fin">
-          <Carte chiffre="+24 %" legende="d'offres hors AI Engineer mentionnant l'IA depuis juin" ton="positif" couleur="#89FAC6" />
-          <Carte chiffre="58 K€" legende="de médiane AI Engineer, contre 62 K€ en juin" ton="alerte" couleur="#FA8999" />
-          <Carte chiffre="2,2 %" legende="des offres Product citent LLM, loin derrière Agile à 28,8 %" ton="info" couleur="#fff" />
-        </div>
-        <Lecture
-          className="mt-8"
-          recruteur="Créer un poste AI Engineer pour attirer ne marche pas : le vivier est étroit et la prime a disparu. Ajoute la compétence à un poste existant, c'est ce que fait le marché."
-          candidat="L'étiquette AI Engineer ne rapporte rien de plus qu'un SRE. Valorise l'IA comme une compétence dans un poste classique, pas comme un changement de métier."
-        />
-      </Slide>
-    ),
-  },
-
-  /* ---------- 09 Data et Design ---------- */
-  {
-    nav: "Data résiste, Design décroche",
-    chapitre: "postes",
-    render: () => (
-      <Slide>
-        <Kicker>Où sont les postes</Kicker>
-        <Titre size={2}>Une famille résiste, une autre décroche</Titre>
-        <Deux gap={44} align="start">
-          <div
-            className="mt-7 rounded-xl"
-            style={{
-              background: "linear-gradient(150deg, rgba(10,194,108,0.16), rgba(10,194,108,0.04))",
-              border: "1px solid rgba(137,250,198,0.30)",
-              borderLeft: "3px solid var(--data)",
-              padding: "20px 22px",
-            }}
-          >
-            <div className="flex items-baseline gap-3">
-              <span className="font-extrabold text-white tnum" style={{ fontSize: 42, letterSpacing: "-0.03em" }}>
-                +2,2 %
-              </span>
-              <span style={{ color: "#89FAC6", fontSize: 16, fontWeight: 600 }}>Data</span>
-            </div>
-            <div className="mt-3" style={{ color: "rgba(255,255,255,0.84)", fontSize: 15, lineHeight: 1.5 }}>
-              Seule famille en croissance depuis juin, à 955 offres. Elle se séniorise : la tranche
-              5-8 ans passe de 29,8 à 32,9 %. Et son plafond salarial atteint 65 K€, le plus haut du
-              marché.
-            </div>
-          </div>
-          <div
-            className="mt-7 rounded-xl"
-            style={{
-              background: "linear-gradient(150deg, rgba(234,179,8,0.16), rgba(234,179,8,0.04))",
-              border: "1px solid rgba(234,179,8,0.32)",
-              borderLeft: "3px solid var(--design)",
-              padding: "20px 22px",
-            }}
-          >
-            <div className="flex items-baseline gap-3">
-              <span className="font-extrabold text-white tnum" style={{ fontSize: 42, letterSpacing: "-0.03em" }}>
-                -21,5 %
-              </span>
-              <span style={{ color: "#EAB308", fontSize: 16, fontWeight: 600 }}>Design</span>
-            </div>
-            <div className="mt-3" style={{ color: "rgba(255,255,255,0.84)", fontSize: 15, lineHeight: 1.5 }}>
-              121 offres en juin, 95 en septembre. Product Designer perd 24 %, UX/UI 23 %. Et la
-              concentration parisienne monte à 74,7 %, contre 70,2 % en juin.
-            </div>
-          </div>
-        </Deux>
-        <Lecture
-          className="mt-7"
-          recruteur="En Design, peu de concurrence mais un vivier verrouillé sur Paris. Recruter un designer hors Île-de-France est aujourd'hui un vrai différenciateur. En Data, tu es en concurrence directe et il faut suivre sur le salaire."
-          candidat="En Data, la demande te porte, y compris en région. En Design, élargir la géographie ne sert à rien : c'est vers le product design en scale-up qu'il faut regarder."
-        />
-      </Slide>
-    ),
-  },
-
-  /* ---------- 10 Junior et remote ---------- */
-  {
-    nav: "Junior et remote",
-    chapitre: "postes",
+    nav: "2,8 % de full remote",
+    chapitre: "insights",
     render: ({ active }) => (
       <Slide>
-        <Kicker>Où sont les postes</Kicker>
-        <Titre size={2}>Deux portes que presque personne n'ouvre</Titre>
-        <Deux gap={52} align="start">
-          <div className="mt-8">
-            <BigNum value={4.2} decimals={1} suffix=" %" active={active} unite="des offres ouvertes aux 0-2 ans" />
-            <div className="mt-6" style={{ maxWidth: 290 }}>
-              <Sparkline serie={PORTES.junior} labels={MONTHS} color="rgba(255,255,255,0.6)" height={36} baseZero />
-            </div>
-            <Corps className="mt-4">
-              4,6 puis 4,3, 4,4 et 4,2 %. C'est cette stabilité qui compte : ce n'est pas une
-              conjoncture. En Product, 1,6 %. En Data, 5,4 %.
-            </Corps>
+        <Kicker>Le télétravail</Kicker>
+        <Deux ratio="0.9fr 1.1fr" gap={48}>
+          <div>
+            <BigNum value={2.8} decimals={1} suffix="%" active={active} unite="de full remote, parmi les annonces qui le précisent" color="#F92441" />
           </div>
-          <div className="mt-8">
-            <BigNum value={0.3} decimals={1} suffix=" %" active={active} unite="des offres en full remote" color="var(--signal)" />
-            <div className="mt-6" style={{ maxWidth: 290 }}>
-              <Sparkline serie={PORTES.remote} labels={MONTHS} color="var(--signal)" height={36} baseZero />
-            </div>
-            <Corps className="mt-4">
-              Divisé par deux depuis juin. L'hybride, lui, progresse de 14,3 à 15,2 %. Le full remote
-              a quitté les annonces.
+          <div>
+            <Corps>
+              1 068 annonces indiquent un mode de travail. Parmi elles, 87,4 % sont en hybride. Exiger le full remote
+              revient à se fermer la quasi-totalité du marché visible.
             </Corps>
+            <Encadre titre="Ce qu'on ne peut pas vous dire" ton="alerte" className="mt-5">
+              Savoir si le full remote se paie plus ou moins demanderait des annonces affichant à la fois un salaire et
+              un mode de travail. Il y en a six ce mois-ci.
+            </Encadre>
           </div>
         </Deux>
-        <Lecture
-          className="mt-7"
-          recruteur="Ouvrir un poste aux 0-2 ans te place devant 95,8 % du marché. Le full remote est le levier d'attractivité le moins utilisé du pays, à toi de voir si tu peux le tenir."
-          candidat="Si tu débutes, Data est ta meilleure porte d'entrée et Product la pire. Et exiger du full remote revient à te fermer 99,7 % des offres : l'hybride est la vraie zone de négociation."
-        />
       </Slide>
     ),
   },
 
-  /* ---------- 11 Qui recrute ---------- */
+  /* ---------- 20 Les trois signaux ---------- */
   {
-    nav: "Qui recrute vraiment",
-    chapitre: "postes",
-    render: () => {
-      const max = Math.max(...RECRUTEURS.map((r) => r.pct));
-      return (
-        <Slide>
-          <Kicker>Où sont les postes</Kicker>
-          <Titre size={2}>Une offre sur deux vient d'une ESN</Titre>
-          <Deux ratio="1.15fr 1fr" gap={48} align="start">
-            <div className="mt-6">
-              {RECRUTEURS.map((r) => (
-                <Bar
-                  key={r.nom}
-                  label={r.nom}
-                  value={r.pct}
-                  max={max}
-                  color={r.nom === "ESN / Conseil" ? "#3932FF" : "rgba(255,255,255,0.3)"}
-                  right={`${fmtDec(r.pct)} %`}
-                />
-              ))}
-            </div>
-            <div className="mt-6">
-              <Corps>
-                Startups et scale-ups réunies pèsent 14,6 % des offres. Le poids des ESN est surtout
-                un phénomène Tech : il tombe à 38,4 % en Product et 34,7 % en Design.
-              </Corps>
-              <div className="mt-5">
-                {RECRUTEURS_PAR_FAM.map((f) => (
-                  <div
-                    key={f.nom}
-                    className="flex items-center justify-between py-2.5"
-                    style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-                  >
-                    <span className="flex items-center gap-2.5" style={{ color: "rgba(255,255,255,0.8)", fontSize: 15 }}>
-                      <span style={{ width: 4, height: 15, borderRadius: 2, background: FAM[f.nom] }} />
-                      {f.nom}
-                    </span>
-                    <span className="tnum font-semibold text-white" style={{ fontSize: 15 }}>
-                      {fmtDec(f.pct)} %
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Deux>
-          <Lecture
-            className="mt-7"
-            recruteur="Ton annonce n'est pas comparée à celle d'un concurrent produit, elle est comparée à une mission de conseil. Nomme le produit, l'équipe et la stack : c'est ce qu'une ESN ne peut pas faire."
-            candidat="La moitié du marché visible n'est pas du produit. Si c'est ce que tu cherches, ton marché réel est deux fois plus petit qu'il n'y paraît. Filtre dès la lecture de l'annonce."
-          />
-        </Slide>
-      );
-    },
-  },
-
-  /* ---------- 12 Les 3 signaux ---------- */
-  {
-    nav: "Les 3 signaux fin d'année",
-    chapitre: "action",
+    nav: "Les 3 signaux",
+    chapitre: "insights",
     render: () => (
       <Slide>
-        <Kicker>Ce que tu fais</Kicker>
-        <Titre size={2}>Les trois signaux à surveiller d'ici décembre</Titre>
-        <div className="mt-8 space-y-0 cascade-fin">
+        <Kicker>Ce qu'il faut retenir</Kicker>
+        <Titre>Trois signaux à surveiller d'ici octobre</Titre>
+        <div className="mt-8 space-y-4">
           {SIGNAUX.map((s, i) => (
             <div
               key={s.titre}
-              className="grid gap-7 py-5"
-              style={{
-                gridTemplateColumns: "34px 1fr",
-                borderTop: i === 0 ? "1px solid rgba(255,255,255,0.1)" : "none",
-                borderBottom: "1px solid rgba(255,255,255,0.1)",
-              }}
+              className="rounded-xl"
+              style={{ background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.10)", borderLeft: `3px solid ${s.couleur}`, padding: "20px 24px" }}
             >
-              <span className="tnum font-bold" style={{ color: s.couleur, fontSize: 22, lineHeight: 1.1 }}>
-                {i + 1}
-              </span>
-              <div>
-                <div className="text-white font-semibold" style={{ fontSize: "clamp(18px, 1.9vw, 25px)", letterSpacing: "-0.015em" }}>
-                  {s.titre}
-                </div>
-                <div className="mt-2" style={{ color: "rgba(255,255,255,0.68)", fontSize: 15.5, lineHeight: 1.5, maxWidth: "74ch" }}>
-                  {s.corps}
+              <div className="flex gap-4">
+                <span className="tnum font-extrabold" style={{ color: s.couleur, fontSize: 22, minWidth: 30 }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <div className="text-white font-semibold" style={{ fontSize: 19, letterSpacing: "-0.015em" }}>
+                    {s.titre}
+                  </div>
+                  <div className="mt-2" style={{ color: "rgba(255,255,255,0.78)", fontSize: 15, lineHeight: 1.55 }}>
+                    {s.corps}
+                  </div>
                 </div>
               </div>
             </div>
@@ -671,121 +706,78 @@ export const SLIDES = [
     ),
   },
 
-  /* ---------- 13 Plan recruteur ---------- */
+  /* ---------- 23 Plan recruteur ---------- */
   {
-    nav: "Plan d'action recruteur",
+    nav: "Plan recruteur",
     chapitre: "action",
     render: () => (
       <Slide>
-        <Kicker>Ce que tu fais</Kicker>
-        <Titre size={2}>Cinq décisions si tu recrutes</Titre>
-        <div className="mt-7 cascade-fin">
+        <Kicker>Si vous recrutez</Kicker>
+        <Titre>Cinq décisions à prendre cette semaine</Titre>
+        <div className="mt-7">
           {PLAN_RECRUTEUR.map((a, i) => (
-            <Action
-              key={a.action}
-              n={i + 1}
-              action={a.action}
-              detail={a.detail}
-              accent="#3932FF"
-              tint="linear-gradient(150deg, rgba(57,50,255,0.20), rgba(57,50,255,0.06))"
-            />
+            <Action key={a.action} n={i + 1} action={a.action} detail={a.detail} accent="#3932FF" tint="rgba(57,50,255,0.09)" />
           ))}
         </div>
       </Slide>
     ),
   },
 
-  /* ---------- 14 Plan candidat ---------- */
+  /* ---------- 24 Career Score et coaching ---------- */
   {
-    nav: "Plan d'action candidat",
+    nav: "Career Score",
     chapitre: "action",
     render: () => (
       <Slide>
-        <Kicker>Ce que tu fais</Kicker>
-        <Titre size={2}>Cinq décisions si tu cherches un poste</Titre>
-        <div className="mt-7 cascade-fin">
-          {PLAN_CANDIDAT.map((a, i) => (
-            <Action
-              key={a.action}
-              n={i + 1}
-              action={a.action}
-              detail={a.detail}
-              accent="#C2C0FF"
-              tint="linear-gradient(150deg, rgba(237,236,255,0.12), rgba(237,236,255,0.03))"
-            />
-          ))}
-        </div>
-      </Slide>
-    ),
-  },
-
-  /* ---------- 15 Takeaways ---------- */
-  {
-    nav: "Tu repars avec",
-    chapitre: "action",
-    render: () => (
-      <Slide>
-        <Kicker>Ce que tu fais</Kicker>
-        <Titre size={2}>Tu repars avec</Titre>
-        <div className="mt-8 grid sm:grid-cols-2 gap-4 cascade-fin">
+        <Kicker>La suite, maintenant</Kicker>
+        <Titre>Le Career Score et le coaching en direct</Titre>
+        <div className="mt-8 grid sm:grid-cols-3 gap-4">
           {TAKEAWAYS.map((t) => (
             <div
               key={t.titre}
-              className="rounded-xl px-6 py-5"
-              style={
-                t.fort
-                  ? {
-                      background: "linear-gradient(150deg, rgba(57,50,255,0.24), rgba(57,50,255,0.08))",
-                      border: "1px solid rgba(114,108,253,0.45)",
-                      borderLeft: "3px solid #3932FF",
-                    }
-                  : {
-                      background: "rgba(255,255,255,0.045)",
-                      border: "1px solid rgba(255,255,255,0.11)",
-                      borderLeft: "3px solid rgba(255,255,255,0.22)",
-                    }
-              }
+              className="rounded-xl"
+              style={{
+                background: t.fort ? "linear-gradient(150deg, rgba(249,36,65,0.16), rgba(57,50,255,0.08))" : "rgba(255,255,255,0.035)",
+                border: `1px solid ${t.fort ? "rgba(250,137,153,0.34)" : "rgba(255,255,255,0.10)"}`,
+                padding: "22px 24px",
+              }}
             >
-              <div className="font-semibold" style={{ fontSize: 17.5, letterSpacing: "-0.01em", color: t.fort ? "#C2C0FF" : "#fff" }}>
+              <div className="text-white font-semibold" style={{ fontSize: 18, letterSpacing: "-0.015em" }}>
                 {t.titre}
               </div>
-              <div className="mt-2" style={{ color: "rgba(255,255,255,0.82)", fontSize: 14.5, lineHeight: 1.5 }}>
+              <div className="mt-2" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14.5, lineHeight: 1.55 }}>
                 {t.corps}
               </div>
             </div>
           ))}
         </div>
-        <div className="mt-7" style={{ color: "rgba(255,255,255,0.5)", fontSize: 14.5 }}>
-          CTOs, VP Engineering, Heads of Product, fondateurs, Talent Acquisition. Et tous ceux qui en
-          ont marre de négocier à l'aveugle.
-        </div>
       </Slide>
     ),
   },
 
-  /* ---------- 16 Clôture ---------- */
+  /* ---------- 25 Fin ---------- */
   {
-    nav: "Rendez-vous en octobre",
+    nav: "Merci",
     chapitre: null,
     render: () => (
       <Slide center>
-        <div className="serif" style={{ fontSize: "clamp(28px, 4.4vw, 56px)", lineHeight: 1.15, color: "#fff", maxWidth: "24ch", margin: "0 auto" }}>
-          Les chiffres d'octobre tombent dans un mois.
-        </div>
-        <div className="mt-7" style={{ color: "rgba(255,255,255,0.58)", fontSize: 17, maxWidth: "46ch", margin: "0 auto", lineHeight: 1.55 }}>
-          Ils diront si le ralentissement de l'été était saisonnier ou structurel. On remet ça.
-        </div>
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-12 gap-y-5">
-          {LIVE.speakers.map((s) => (
-            <div key={s.nom}>
-              <div className="text-white font-semibold" style={{ fontSize: 16.5 }}>
-                {s.nom}
-              </div>
-              <div style={{ color: "rgba(255,255,255,0.42)", fontSize: 13.5 }}>
-                {s.role} @ {s.boite}
-              </div>
-            </div>
-          ))}
+        <div className="text-center">
+          <Kicker>{LIVE.runLabel}</Kicker>
+          <h2
+            className="font-extrabold text-white mt-4"
+            style={{ fontSize: "clamp(34px, 5.4vw, 74px)", lineHeight: 1, letterSpacing: "-0.035em" }}
+          >
+            À vos questions.
+          </h2>
+          <div className="mt-6 mx-auto" style={{ color: "rgba(255,255,255,0.6)", fontSize: 18, maxWidth: "46ch", lineHeight: 1.5 }}>
+            Le lien vers le TPC Pulse et le Career Score est dans le chat.
+          </div>
+          <div className="mt-8 mx-auto text-left" style={{ maxWidth: "58ch" }}>
+            <Encadre titre="Ce dont on a besoin de vous" ton="positif">
+              Votre métier, votre nombre d'années d'expérience et votre ville. Trois informations, et on vous dit où
+              vous vous situez sur les 6 373 annonces de septembre.
+            </Encadre>
+          </div>
         </div>
       </Slide>
     ),
