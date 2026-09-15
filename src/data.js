@@ -12,10 +12,14 @@
 
    CE QUI EST COMPARABLE ET CE QUI NE L'EST PAS
    En septembre, la classification reconnaît de nouveaux intitulés génériques
-   de développement. Le volume total et les trois métiers de dev généralistes
+   de développement : 907 annonces captées en plus, mesurées par
+   check_rupture.py. Le volume total et les trois métiers de dev généralistes
    (Backend, Fullstack, Frontend) ne se comparent PAS aux mois précédents.
    Tout le reste est comparable. AFFECTES sert à marquer visuellement les
    séries concernées : ne pas la contourner.
+   Les chiffres de la rupture vivent dans RUPTURE, un seul endroit. Toute
+   affirmation du type « à périmètre constant, X % » doit boucler avec eux :
+   (6 373 − 907) / 5 512 − 1 = −0,8 %, et non −1,4 %.
    ========================================================================= */
 
 export const LIVE = {
@@ -77,12 +81,12 @@ export const METHODE_ETAPES = [
   {
     n: "01",
     titre: "Collecte",
-    corps: "Welcome to the Jungle et Hello Work, tous les CDI tech, product, data et design publiés en France métropolitaine. 21 186 annonces brutes ce mois-ci.",
+    corps: "Tous les CDI tech, product, data et design publiés en France métropolitaine, collectés sur les annonces accessibles publiquement en ligne. 21 186 annonces brutes ce mois-ci. Le périmètre des sources évolue avec les améliorations de méthode.",
   },
   {
     n: "02",
     titre: "Dédoublonnage",
-    corps: "Sur le couple intitulé + employeur, appliqué à l'ensemble du pool : entre les deux jobboards et à l'intérieur de chacun. 1 514 doublons supprimés, aucun doublon exact ne subsiste.",
+    corps: "Sur le couple intitulé + employeur, appliqué à l'ensemble du pool : entre les sources et à l'intérieur de chacune. 1 514 doublons supprimés, aucun doublon exact ne subsiste.",
   },
   {
     n: "03",
@@ -109,6 +113,10 @@ export const METHODE_LIMITES = [
   {
     titre: "Les salaires affichés ne sont pas les salaires perçus",
     corps: "11,4 % des annonces publient une fourchette, et ce sont surtout les grilles standardisées des ESN. Le déclaré est systématiquement au-dessus.",
+  },
+  {
+    titre: "On ne sait pas si une annonce correspond à un poste réel",
+    corps: "Une partie des annonces publiées alimente un vivier plus qu'elle ne pourvoit un poste ouvert. Aucun moyen de mesurer cette part : on ne la retire pas, et on ne fait pas semblant qu'elle n'existe pas.",
   },
 ];
 
@@ -149,6 +157,43 @@ export const USAGE_ENTREPRISE = [
     action: "Ouvrez aux profils de 3 à 5 ans",
     detail: "L'écart avec les 5-8 ans est de 8,7 K€. C'est le meilleur rapport coût / disponibilité du marché actuel.",
   },
+];
+
+/* ---------- La rupture de méthode de septembre ----------
+   Chiffres mesurés par check_rupture.py, en comparant les deux états du
+   classifieur sur le même fichier. C'est la seule mesure qui ait vu l'avant
+   et l'après : ne pas la recalculer à partir des volumes affichés.
+   Le périmètre reconstruit (2 747 / 1 560 / 396) décrit le marché, pas la
+   rupture. Les deux répondent à deux questions différentes. */
+export const RUPTURE = {
+  captees: 907,
+  detail: [
+    { nom: "Fullstack", n: 622 },
+    { nom: "Backend", n: 233 },
+    { nom: "Frontend", n: 52 },
+  ],
+  totalAout: 5512,
+  totalSeptembre: 6373,
+  perimetreConstant: 5466, // 6 373 − 907
+  varConstant: -0.8, // (5 466 / 5 512) − 1
+  techAout: 3608,
+  techSeptembre: 4527,
+  techVarConstant: 0.3, // (4 527 − 907) / 3 608 − 1
+  /* Périmètre reconstruit a posteriori sur septembre, pour la question
+     « combien d'annonces de dev ne nomment rien ? » */
+  devTotal: 2747,
+  devSansSpecialite: 1560,
+  devSansSpecialiteNiTechno: 396,
+};
+
+/* ---------- Ressources à pousser en fin de live ----------
+   Renseigner les trois URL, puis : python3 scripts/gen-qr.py
+   Les QR codes sont générés en SVG dans public/, aucun appel réseau pendant
+   le live. */
+export const RESSOURCES = [
+  { id: "pulse", titre: "TPC Pulse", corps: "Les 26 fiches métiers, quatre mois d'historique, la méthode complète.", url: "" },
+  { id: "career-score", titre: "Career Score", corps: "Votre profil LinkedIn en PDF, et le regard d'un recruteur sur votre positionnement.", url: "" },
+  { id: "salary-map", titre: "Salary Map", corps: "Le simulateur : métier, géographie, compétences.", url: "" },
 ];
 
 /* ---------- Volume ---------- */
@@ -308,8 +353,8 @@ export const SIGNAUX = [
     couleur: "var(--data)",
   },
   {
-    titre: "Devenir manager rapporte plus que changer de métier",
-    corps: "Un Engineering Manager gagne 82,5 K€, un développeur backend 46 K€. Entre les deux, tous les autres métiers tech tiennent dans une fourchette de 46 à 60 K€. Autrement dit : passer de backend à DevOps ou à Data Engineer change peu de chose, passer au management change tout.",
+    titre: "En tech, la progression salariale passe par le management",
+    corps: "Tous les postes de contributeur individuel tiennent dans une fourchette de 46 à 60 K€ : passer de backend à DevOps ou à Data Engineer déplace peu le curseur. L'Engineering Manager, lui, est à 82,5 K€. Une réserve à garder en tête : c'est aussi le seul poste d'encadrement qui affiche son salaire, les CTO et les Head of n'en publient pas. L'écart est réel, son ampleur est probablement surestimée.",
     couleur: "var(--tech)",
   },
   {
@@ -330,16 +375,16 @@ export const PLAN_RECRUTEUR = [
     detail: "88,6 % des annonces ne le font pas. C'est le levier de différenciation le moins cher du marché.",
   },
   {
-    action: "Visez les 3-5 ans",
-    detail: "47,5 K€ contre 56,2 pour les 5-8 ans. Pour 8,7 K€ d'écart, le vivier est nettement plus large.",
+    action: "Benchmarkez sur votre niche, pas sur le marché global",
+    detail: "Savoir combien d'entreprises cherchent exactement votre profil au même moment vous dit si le poste se ferme en six semaines ou en six mois. Sur le DevOps, dix employeurs publient 22,7 % des annonces. Regardez aussi comment ils rédigent : salaire affiché ou non, ce qu'ils mettent en avant. Vos angles de différenciation sont là.",
   },
   {
-    action: "N'ouvrez pas de poste AI Engineer",
-    detail: "131 annonces sur tout le pays, en recul de 9,7 % depuis juin. Ajoutez la compétence à un poste existant, c'est ce que fait le marché.",
+    action: "N'intitulez pas le poste AI Engineer",
+    detail: "131 annonces sur tout le pays, en recul de 9,7 % depuis juin, et derrière l'intitulé on trouve aussi bien des développeurs augmentés que des profils ML. Mettez en avant le métier de base, et l'IA dans les compétences.",
   },
   {
-    action: "Regardez qui sature votre canal",
-    detail: "Sur le DevOps, dix employeurs publient 23,7 % des annonces. Votre concurrence n'est pas le volume affiché, c'est une poignée d'acteurs.",
+    action: "Chassez, n'attendez pas les candidatures",
+    detail: "Les briefs des managers sont de plus en plus exigeants : vélocité, jugement, capacité à construire le produit. Poster une offre génère du flux, pas de la qualité. Les profils qui ont ce track record ne postulent pas, ils sont déjà sollicités.",
   },
 ];
 

@@ -33,18 +33,18 @@ import {
   USAGE_CANDIDAT,
   USAGE_ENTREPRISE,
   AFFECTES,
+  RUPTURE,
+  RESSOURCES,
   VOLUME,
   METIERS,
   MONTENT,
   DESCENDENT,
   SALAIRES,
   AMPLITUDE,
-  DECILES,
   VILLES,
   ECART_PARIS,
   EXPERIENCE,
   RECRUTEURS,
-  CONCENTRATION,
   EMPLOYEURS_BACKEND,
   IA,
   PORTES,
@@ -52,7 +52,6 @@ import {
   SIGNAUX,
   TAKEAWAYS,
   PLAN_RECRUTEUR,
-  PLAN_CANDIDAT,
 } from "./data.js";
 
 const tooltipStyle = {
@@ -330,6 +329,42 @@ export const SLIDES = [
     ),
   },
 
+  /* ---------- 05bis Comment s'en servir ----------
+     Le sommaire annonce ce chapitre et il est promis à l'oral. Si tu coupes
+     pour tenir le temps, retire aussi la ligne "usage" de CHAPITRES. */
+  {
+    nav: "Comment s'en servir",
+    chapitre: "usage",
+    render: () => (
+      <Slide>
+        <Kicker>Avant les chiffres</Kicker>
+        <Titre>Comment lire ce qui suit</Titre>
+        <Corps className="mt-3">
+          Les mêmes chiffres ne se lisent pas pareil des deux côtés de la table. Trois réflexes de chaque côté, et on
+          y revient en fin de session avec le plan d'action.
+        </Corps>
+        <div className="mt-8 grid sm:grid-cols-2 gap-5">
+          <div>
+            <div className="font-semibold mb-3" style={{ color: "#C2C0FF", fontSize: 14 }}>
+              Si vous recrutez
+            </div>
+            {USAGE_ENTREPRISE.slice(0, 3).map((u, i) => (
+              <Action key={u.action} n={i + 1} action={u.action} detail={u.detail} accent="#3932FF" tint="rgba(57,50,255,0.09)" />
+            ))}
+          </div>
+          <div>
+            <div className="font-semibold mb-3" style={{ color: "#EDECFF", fontSize: 14 }}>
+              Si vous cherchez un poste
+            </div>
+            {USAGE_CANDIDAT.slice(0, 3).map((u, i) => (
+              <Action key={u.action} n={i + 1} action={u.action} detail={u.detail} accent="#C2C0FF" tint="rgba(237,236,255,0.07)" />
+            ))}
+          </div>
+        </div>
+      </Slide>
+    ),
+  },
+
   /* ================= LES INSIGHTS — un chiffre par slide =================
      Ordre du récit : l'état général d'abord, puis ce qui bouge, puis les
      chiffres clés, puis ce qu'on en retient. Une slide = une idée. */
@@ -347,9 +382,14 @@ export const SLIDES = [
           </div>
           <div>
             <Corps>
-              Tous les CDI tech, product, data et design publiés en France métropolitaine sur Welcome to the Jungle et
-              Hello Work, après dédoublonnage.
+              Tous les CDI tech, product, data et design publiés en France métropolitaine, après dédoublonnage.
             </Corps>
+            <Encadre titre="Le chiffre monte, le marché non" ton="alerte" className="mt-5">
+              {RUPTURE.captees} de ces annonces sont captées par un classifieur élargi ce mois-ci : elles existaient
+              avant, on ne les comptait pas. Ramené au périmètre d'août, septembre est à{" "}
+              {fmtNum(RUPTURE.perimetreConstant)} annonces contre {fmtNum(RUPTURE.totalAout)}, soit{" "}
+              {fmtDec(RUPTURE.varConstant)} %. La hausse affichée est un effet de comptage, pas une reprise.
+            </Encadre>
           </div>
         </Deux>
       </Slide>
@@ -431,7 +471,7 @@ export const SLIDES = [
         <Deux ratio="0.95fr 1.05fr" gap={48}>
           <div>
             <div className="font-extrabold tnum text-white" style={{ fontSize: "clamp(46px, 8.4vw, 110px)", lineHeight: 0.9, letterSpacing: "-0.04em" }}>
-              46&#8202;–&#8202;82,5
+              {fmtDec(AMPLITUDE[0].bas)}&#8202;–&#8202;{fmtDec(AMPLITUDE[0].haut)}
               <span style={{ fontSize: "0.3em", marginLeft: 4 }}> K€</span>
             </div>
             <div className="mt-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: "clamp(14px, 1.3vw, 19px)" }}>
@@ -440,9 +480,14 @@ export const SLIDES = [
           </div>
           <div>
             <Corps>
-              Développeur Backend à 46 K€, Engineering Manager à 82,5 K€. Ce sont des médianes de métiers, toutes
-              séniorités confondues.
+              {AMPLITUDE[0].basNom} à {fmtDec(AMPLITUDE[0].bas)} K€, {AMPLITUDE[0].hautNom} à{" "}
+              {fmtDec(AMPLITUDE[0].haut)} K€. Ce sont des médianes de métiers, toutes séniorités confondues.
             </Corps>
+            <Encadre titre="Deux réserves avant d'en tirer une conclusion" ton="alerte" className="mt-5">
+              Le bas de la fourchette mélange toutes les séniorités, sorties d'école comprises. Et l'Engineering
+              Manager est quasiment le seul poste d'encadrement à afficher un salaire : les CTO et les Head of n'en
+              publient pas. L'écart est réel, l'ampleur est flattée.
+            </Encadre>
           </div>
         </Deux>
       </Slide>
@@ -564,17 +609,17 @@ export const SLIDES = [
 
   /* ---------- 16 La concentration ---------- */
   {
-    nav: "Dix employeurs",
+    nav: "Huit employeurs",
     chapitre: "insights",
     render: ({ active }) => (
       <Slide>
         <Kicker>Qui publie</Kicker>
         <Deux ratio="0.9fr 1.1fr" gap={48}>
           <div>
-            <BigNum value={258} active={active} unite="des 1 275 annonces backend viennent de dix employeurs" />
+            <BigNum value={222} active={active} unite="des 1 275 annonces backend viennent de huit employeurs" />
             <Corps className="mt-6">
-              Une annonce backend sur cinq. Vous n'êtes pas face à 1 275 entreprises, mais à une poignée d'acteurs qui
-              publient en volume.
+              Près d'une annonce backend sur six. Vous n'êtes pas face à 1 275 entreprises, mais à une poignée
+              d'acteurs qui publient en volume.
             </Corps>
           </div>
           <div>
@@ -638,6 +683,9 @@ export const SLIDES = [
               Le poste d'AI Engineer passe de 145 annonces en juin à 131 en septembre, soit −9,7 %. Pendant ce temps,
               la compétence continue d'apparaître dans les fiches de postes existantes. On n'embauche pas un
               spécialiste IA, on demande l'IA à tout le monde.
+              <div className="mt-2.5" style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>
+                Notre lecture du marché, pas une causalité démontrée.
+              </div>
             </Encadre>
           </div>
         </Deux>
@@ -671,6 +719,31 @@ export const SLIDES = [
     ),
   },
 
+  /* ---------- 19 Ce qu'on ne peut pas publier ----------
+     Tient la promesse faite sur la slide 03 : on dit aussi ce qu'on ne sait
+     pas. C'est ici que vit la réponse « le full remote se paie-t-il plus ? ». */
+  {
+    nav: "Ce qu'on ne dit pas",
+    chapitre: "insights",
+    render: () => (
+      <Slide>
+        <Kicker color="var(--danger)">La part manquante</Kicker>
+        <Titre>Quatre chiffres qu'on a mesurés et qu'on ne publiera pas</Titre>
+        <Corps className="mt-3">
+          En dessous des seuils, un chiffre ne décrit plus le marché, il décrit son propre bruit. On préfère afficher
+          le trou.
+        </Corps>
+        <div className="mt-8 grid sm:grid-cols-2 gap-4">
+          {NON_PUBLIABLE.map((n) => (
+            <Encadre key={n.sujet} titre={n.sujet} ton="alerte">
+              {n.raison}
+            </Encadre>
+          ))}
+        </div>
+      </Slide>
+    ),
+  },
+
   /* ---------- 20 Les trois signaux ---------- */
   {
     nav: "Les 3 signaux",
@@ -679,7 +752,11 @@ export const SLIDES = [
       <Slide>
         <Kicker>Ce qu'il faut retenir</Kicker>
         <Titre>Trois signaux à surveiller d'ici octobre</Titre>
-        <div className="mt-8 space-y-4">
+        <Corps className="mt-3">
+          Les chiffres sont mesurés, les explications sont les nôtres. Aucune causalité n'est démontrée ici : c'est
+          une lecture, faites-vous la vôtre.
+        </Corps>
+        <div className="mt-7 space-y-4">
           {SIGNAUX.map((s, i) => (
             <div
               key={s.titre}
@@ -769,10 +846,38 @@ export const SLIDES = [
           >
             À vos questions.
           </h2>
-          <div className="mt-6 mx-auto" style={{ color: "rgba(255,255,255,0.6)", fontSize: 18, maxWidth: "46ch", lineHeight: 1.5 }}>
-            Le lien vers le TPC Pulse et le Career Score est dans le chat.
+          <div className="mt-5 mx-auto" style={{ color: "rgba(255,255,255,0.6)", fontSize: 18, maxWidth: "46ch", lineHeight: 1.5 }}>
+            Tous les liens sont dans le chat. Scannez pendant qu'on prend vos questions.
           </div>
-          <div className="mt-8 mx-auto text-left" style={{ maxWidth: "58ch" }}>
+          <div className="mt-8 grid sm:grid-cols-3 gap-4 mx-auto text-left" style={{ maxWidth: "76ch" }}>
+            {RESSOURCES.map((r) => (
+              <div
+                key={r.id}
+                className="rounded-xl flex flex-col items-center text-center"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.11)", padding: "18px 16px" }}
+              >
+                <div
+                  className="rounded-lg flex items-center justify-center"
+                  style={{ width: 108, height: 108, background: "#fff", padding: 6 }}
+                >
+                  {r.url ? (
+                    <img src={`/qr-${r.id}.svg`} alt={r.titre} style={{ width: "100%", height: "100%" }} />
+                  ) : (
+                    <span style={{ color: "#8a8a8a", fontSize: 11, lineHeight: 1.3 }}>
+                      QR à générer
+                    </span>
+                  )}
+                </div>
+                <div className="text-white font-semibold mt-3.5" style={{ fontSize: 16, letterSpacing: "-0.01em" }}>
+                  {r.titre}
+                </div>
+                <div className="mt-1.5" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, lineHeight: 1.45 }}>
+                  {r.corps}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-7 mx-auto text-left" style={{ maxWidth: "58ch" }}>
             <Encadre titre="Ce dont on a besoin de vous" ton="positif">
               Votre métier, votre nombre d'années d'expérience et votre ville. Trois informations, et on vous dit où
               vous vous situez sur les 6 373 annonces de septembre.
