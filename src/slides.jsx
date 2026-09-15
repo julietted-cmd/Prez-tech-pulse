@@ -30,11 +30,8 @@ import {
   POURQUOI,
   METHODE_ETAPES,
   METHODE_LIMITES,
-  USAGE_CANDIDAT,
-  USAGE_ENTREPRISE,
   AFFECTES,
   RUPTURE,
-  RESSOURCES,
   VOLUME,
   METIERS,
   MONTENT,
@@ -48,7 +45,6 @@ import {
   EMPLOYEURS_BACKEND,
   IA,
   PORTES,
-  NON_PUBLIABLE,
   SIGNAUX,
   TAKEAWAYS,
   PLAN_RECRUTEUR,
@@ -97,9 +93,11 @@ const Action = ({ n, action, detail, accent, tint }) => (
         <div className="text-white font-semibold" style={{ fontSize: 16, letterSpacing: "-0.01em" }}>
           {action}
         </div>
-        <div className="mt-1" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.5 }}>
-          {detail}
-        </div>
+        {detail && (
+          <div className="mt-1" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.5 }}>
+            {detail}
+          </div>
+        )}
       </div>
     </div>
   </div>
@@ -123,10 +121,15 @@ const Mouvement = ({ item, sens }) => {
         </span>
       </div>
       <div className="mt-2.5">
-        <Sparkline serie={item.serie} color={couleur} height={40} />
+        <Sparkline serie={item.serie} color={couleur} height={40} points />
       </div>
-      <div className="tnum mt-1" style={{ color: "rgba(255,255,255,0.38)", fontSize: 12 }}>
-        {item.serie[0]} → {item.serie[item.serie.length - 1]} annonces
+      <div className="flex justify-between mt-1.5" style={{ color: "rgba(255,255,255,0.32)", fontSize: 11 }}>
+        {MONTHS.map((m) => (
+          <span key={m}>{m.slice(0, 4)}</span>
+        ))}
+      </div>
+      <div className="tnum mt-1.5" style={{ color: "rgba(255,255,255,0.42)", fontSize: 12 }}>
+        {MONTHS[0]} {item.serie[0]} → {MONTHS[MONTHS.length - 1]} {item.serie[item.serie.length - 1]} annonces
       </div>
     </div>
   );
@@ -235,9 +238,8 @@ export const SLIDES = [
                     [
                       "Pourquoi on publie des chiffres que tout le monde garde pour soi",
                       "Comment on les fabrique, et ce qu'ils ne disent pas",
-                      "Ce que vous en faites, candidat ou recruteur",
                       "Les chiffres de septembre, un par un",
-                      "Le Career Score et le coaching en direct",
+                      "Le Career Score et vos situations, en direct",
                     ][i]
                   }
                 </div>
@@ -329,42 +331,6 @@ export const SLIDES = [
     ),
   },
 
-  /* ---------- 05bis Comment s'en servir ----------
-     Le sommaire annonce ce chapitre et il est promis à l'oral. Si tu coupes
-     pour tenir le temps, retire aussi la ligne "usage" de CHAPITRES. */
-  {
-    nav: "Comment s'en servir",
-    chapitre: "usage",
-    render: () => (
-      <Slide>
-        <Kicker>Avant les chiffres</Kicker>
-        <Titre>Comment lire ce qui suit</Titre>
-        <Corps className="mt-3">
-          Les mêmes chiffres ne se lisent pas pareil des deux côtés de la table. Trois réflexes de chaque côté, et on
-          y revient en fin de session avec le plan d'action.
-        </Corps>
-        <div className="mt-8 grid sm:grid-cols-2 gap-5">
-          <div>
-            <div className="font-semibold mb-3" style={{ color: "#C2C0FF", fontSize: 14 }}>
-              Si vous recrutez
-            </div>
-            {USAGE_ENTREPRISE.slice(0, 3).map((u, i) => (
-              <Action key={u.action} n={i + 1} action={u.action} detail={u.detail} accent="#3932FF" tint="rgba(57,50,255,0.09)" />
-            ))}
-          </div>
-          <div>
-            <div className="font-semibold mb-3" style={{ color: "#EDECFF", fontSize: 14 }}>
-              Si vous cherchez un poste
-            </div>
-            {USAGE_CANDIDAT.slice(0, 3).map((u, i) => (
-              <Action key={u.action} n={i + 1} action={u.action} detail={u.detail} accent="#C2C0FF" tint="rgba(237,236,255,0.07)" />
-            ))}
-          </div>
-        </div>
-      </Slide>
-    ),
-  },
-
   /* ================= LES INSIGHTS — un chiffre par slide =================
      Ordre du récit : l'état général d'abord, puis ce qui bouge, puis les
      chiffres clés, puis ce qu'on en retient. Une slide = une idée. */
@@ -388,7 +354,7 @@ export const SLIDES = [
               {RUPTURE.captees} de ces annonces sont captées par un classifieur élargi ce mois-ci : elles existaient
               avant, on ne les comptait pas. Ramené au périmètre d'août, septembre est à{" "}
               {fmtNum(RUPTURE.perimetreConstant)} annonces contre {fmtNum(RUPTURE.totalAout)}, soit{" "}
-              {fmtDec(RUPTURE.varConstant)} %. La hausse affichée est un effet de comptage, pas une reprise.
+              {fmtDec(RUPTURE.varConstant)} %.
             </Encadre>
           </div>
         </Deux>
@@ -486,7 +452,7 @@ export const SLIDES = [
             <Encadre titre="Deux réserves avant d'en tirer une conclusion" ton="alerte" className="mt-5">
               Le bas de la fourchette mélange toutes les séniorités, sorties d'école comprises. Et l'Engineering
               Manager est quasiment le seul poste d'encadrement à afficher un salaire : les CTO et les Head of n'en
-              publient pas. L'écart est réel, l'ampleur est flattée.
+              publient pas.
             </Encadre>
           </div>
         </Deux>
@@ -534,9 +500,9 @@ export const SLIDES = [
           ))}
         </div>
         <Encadre titre="Ce n'est pas un effet de composition" ton="positif" className="mt-5">
-          On pourrait croire que Paris paie plus parce qu'on y trouve plus de postes bien rémunérés. En comparant
-          métier par métier, l'écart reste de 12,8 K€, contre 15,0 K€ en comparaison brute. C'est bien le même poste
-          qui est payé plus cher.
+          Comparer la médiane parisienne à celle du reste de la France donne 15,0 K€ d'écart, mais ce chiffre mélange
+          des métiers différents : Paris concentre davantage de postes seniors. En neutralisant cet effet, métier par
+          métier, il reste {fmtDec(ECART_PARIS.constant)} K€. C'est bien le même poste qui est payé plus cher.
         </Encadre>
       </Slide>
     ),
@@ -719,31 +685,6 @@ export const SLIDES = [
     ),
   },
 
-  /* ---------- 19 Ce qu'on ne peut pas publier ----------
-     Tient la promesse faite sur la slide 03 : on dit aussi ce qu'on ne sait
-     pas. C'est ici que vit la réponse « le full remote se paie-t-il plus ? ». */
-  {
-    nav: "Ce qu'on ne dit pas",
-    chapitre: "insights",
-    render: () => (
-      <Slide>
-        <Kicker color="var(--danger)">La part manquante</Kicker>
-        <Titre>Quatre chiffres qu'on a mesurés et qu'on ne publiera pas</Titre>
-        <Corps className="mt-3">
-          En dessous des seuils, un chiffre ne décrit plus le marché, il décrit son propre bruit. On préfère afficher
-          le trou.
-        </Corps>
-        <div className="mt-8 grid sm:grid-cols-2 gap-4">
-          {NON_PUBLIABLE.map((n) => (
-            <Encadre key={n.sujet} titre={n.sujet} ton="alerte">
-              {n.raison}
-            </Encadre>
-          ))}
-        </div>
-      </Slide>
-    ),
-  },
-
   /* ---------- 20 Les trois signaux ---------- */
   {
     nav: "Les 3 signaux",
@@ -825,6 +766,13 @@ export const SLIDES = [
               <div className="mt-2" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14.5, lineHeight: 1.55 }}>
                 {t.corps}
               </div>
+              {t.qr && (
+                <div className="mt-4 flex justify-center">
+                  <div className="rounded-lg" style={{ background: "#fff", padding: 7 }}>
+                    <img src={t.qr} alt={`QR ${t.titre}`} style={{ width: 104, height: 104, display: "block" }} />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -846,38 +794,10 @@ export const SLIDES = [
           >
             À vos questions.
           </h2>
-          <div className="mt-5 mx-auto" style={{ color: "rgba(255,255,255,0.6)", fontSize: 18, maxWidth: "46ch", lineHeight: 1.5 }}>
-            Tous les liens sont dans le chat. Scannez pendant qu'on prend vos questions.
+          <div className="mt-6 mx-auto" style={{ color: "rgba(255,255,255,0.6)", fontSize: 18, maxWidth: "46ch", lineHeight: 1.5 }}>
+            Tous les liens sont dans le chat.
           </div>
-          <div className="mt-8 grid sm:grid-cols-3 gap-4 mx-auto text-left" style={{ maxWidth: "76ch" }}>
-            {RESSOURCES.map((r) => (
-              <div
-                key={r.id}
-                className="rounded-xl flex flex-col items-center text-center"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.11)", padding: "18px 16px" }}
-              >
-                <div
-                  className="rounded-lg flex items-center justify-center"
-                  style={{ width: 108, height: 108, background: "#fff", padding: 6 }}
-                >
-                  {r.url ? (
-                    <img src={`/qr-${r.id}.svg`} alt={r.titre} style={{ width: "100%", height: "100%" }} />
-                  ) : (
-                    <span style={{ color: "#8a8a8a", fontSize: 11, lineHeight: 1.3 }}>
-                      QR à générer
-                    </span>
-                  )}
-                </div>
-                <div className="text-white font-semibold mt-3.5" style={{ fontSize: 16, letterSpacing: "-0.01em" }}>
-                  {r.titre}
-                </div>
-                <div className="mt-1.5" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, lineHeight: 1.45 }}>
-                  {r.corps}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-7 mx-auto text-left" style={{ maxWidth: "58ch" }}>
+          <div className="mt-8 mx-auto text-left" style={{ maxWidth: "58ch" }}>
             <Encadre titre="Ce dont on a besoin de vous" ton="positif">
               Votre métier, votre nombre d'années d'expérience et votre ville. Trois informations, et on vous dit où
               vous vous situez sur les 6 373 annonces de septembre.

@@ -239,7 +239,7 @@ export const Carte = ({ chiffre, legende, couleur = "#fff", ton = "info" }) => {
 
 /* baseZero : cale l'axe sur 0. Indispensable sur une série stable, sinon
    l'échelle automatique transforme un plateau en effondrement visuel. */
-export const Sparkline = ({ serie, labels, color = "#fff", height = 54, baseZero = false }) => {
+export const Sparkline = ({ serie, labels, color = "#fff", height = 54, baseZero = false, points = false }) => {
   const min = baseZero ? 0 : Math.min(...serie);
   const max = Math.max(...serie);
   const span = max - min || 1;
@@ -251,10 +251,29 @@ export const Sparkline = ({ serie, labels, color = "#fff", height = 54, baseZero
   const d = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
   return (
     <div>
-      <svg viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none" style={{ width: "100%", height }}>
-        <path d={d} fill="none" stroke={color} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
-        <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2.4" fill={color} />
-      </svg>
+      <div style={{ position: "relative", height }}>
+        <svg viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none" style={{ width: "100%", height, display: "block" }}>
+          <path d={d} fill="none" stroke={color} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+        </svg>
+        {/* Points en overlay HTML : le SVG est étiré en largeur (preserveAspectRatio
+            none), un <circle> y serait déformé en ovale. */}
+        {(points ? pts : [pts[pts.length - 1]]).map((pt, i) => (
+          <span
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${pt[0]}%`,
+              top: pt[1],
+              width: 6,
+              height: 6,
+              marginLeft: -3,
+              marginTop: -3,
+              borderRadius: 999,
+              background: color,
+            }}
+          />
+        ))}
+      </div>
       {labels && (
         <div className="flex justify-between mt-1.5" style={{ color: "rgba(255,255,255,0.34)", fontSize: 11 }}>
           {labels.map((l) => (

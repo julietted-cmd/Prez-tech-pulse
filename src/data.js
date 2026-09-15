@@ -55,7 +55,6 @@ export const AFFECTES = [
 export const CHAPITRES = [
   { id: "intro", titre: "Pourquoi ce baromètre" },
   { id: "methode", titre: "La méthode" },
-  { id: "usage", titre: "Comment s'en servir" },
   { id: "insights", titre: "Ce que dit septembre" },
   { id: "action", titre: "Passer à l'action" },
 ];
@@ -185,16 +184,6 @@ export const RUPTURE = {
   devSansSpecialite: 1560,
   devSansSpecialiteNiTechno: 396,
 };
-
-/* ---------- Ressources à pousser en fin de live ----------
-   Renseigner les trois URL, puis : python3 scripts/gen-qr.py
-   Les QR codes sont générés en SVG dans public/, aucun appel réseau pendant
-   le live. */
-export const RESSOURCES = [
-  { id: "pulse", titre: "TPC Pulse", corps: "Les 26 fiches métiers, quatre mois d'historique, la méthode complète.", url: "" },
-  { id: "career-score", titre: "Career Score", corps: "Votre profil LinkedIn en PDF, et le regard d'un recruteur sur votre positionnement.", url: "" },
-  { id: "salary-map", titre: "Salary Map", corps: "Le simulateur : métier, géographie, compétences.", url: "" },
-];
 
 /* ---------- Volume ---------- */
 export const VOLUME = {
@@ -368,7 +357,7 @@ export const SIGNAUX = [
 export const PLAN_RECRUTEUR = [
   {
     action: "Sortez votre grille de la moyenne nationale",
-    detail: "12,8 K€ d'écart entre Paris et le reste de la France, à métier identique. Une grille unique vous fait perdre les profils parisiens et surpayer ailleurs.",
+    detail: "12,8 K€ d'écart entre Paris et le reste de la France, à métier identique.",
   },
   {
     action: "Affichez votre fourchette",
@@ -376,15 +365,13 @@ export const PLAN_RECRUTEUR = [
   },
   {
     action: "Benchmarkez sur votre niche, pas sur le marché global",
-    detail: "Savoir combien d'entreprises cherchent exactement votre profil au même moment vous dit si le poste se ferme en six semaines ou en six mois. Sur le DevOps, dix employeurs publient 22,7 % des annonces. Regardez aussi comment ils rédigent : salaire affiché ou non, ce qu'ils mettent en avant. Vos angles de différenciation sont là.",
+    detail: "Regardez comment ils rédigent : salaire affiché ou non, ce qu'ils mettent en avant. Vos angles de différenciation sont là.",
   },
   {
     action: "N'intitulez pas le poste AI Engineer",
-    detail: "131 annonces sur tout le pays, en recul de 9,7 % depuis juin, et derrière l'intitulé on trouve aussi bien des développeurs augmentés que des profils ML. Mettez en avant le métier de base, et l'IA dans les compétences.",
   },
   {
     action: "Chassez, n'attendez pas les candidatures",
-    detail: "Les briefs des managers sont de plus en plus exigeants : vélocité, jugement, capacité à construire le produit. Poster une offre génère du flux, pas de la qualité. Les profils qui ont ce track record ne postulent pas, ils sont déjà sollicités.",
   },
 ];
 
@@ -415,16 +402,19 @@ export const PLAN_CANDIDAT = [
 export const TAKEAWAYS = [
   {
     titre: "Le TPC Pulse en accès libre",
-    corps: "26 fiches métiers, quatre mois d'historique, la méthode complète. Lien dans le chat.",
+    corps: "26 fiches métiers, quatre mois d'historique, la méthode complète.",
+    qr: "/qr-tpc-pulse.png",
     fort: true,
   },
   {
     titre: "Le Career Score",
     corps: "Uploadez votre profil LinkedIn et récupérez la vision qu'un recruteur a de votre profil, par rapport au marché actuel.",
+    qr: "/qr-career-score.png",
     fort: true,
   },
   {
-    titre: "Le coaching en direct",
-    corps: "On prend des situations réelles dans le chat et on les traite avec les chiffres sous les yeux.",
+    titre: "L'étude de salaires 2026",
+    corps: "Les rémunérations déclarées par plus de 8 500 répondants, métier par métier.",
+    qr: "/qr-etude-salaires.png",
   },
 ];
