@@ -757,19 +757,23 @@ export const SLIDES = [
               style={{
                 background: t.fort ? "linear-gradient(150deg, rgba(249,36,65,0.16), rgba(57,50,255,0.08))" : "rgba(255,255,255,0.035)",
                 border: `1px solid ${t.fort ? "rgba(250,137,153,0.34)" : "rgba(255,255,255,0.10)"}`,
-                padding: "22px 24px",
+                padding: "26px 24px 28px",
               }}
             >
-              <div className="text-white font-semibold" style={{ fontSize: 18, letterSpacing: "-0.015em" }}>
+              <div
+                className="text-white font-semibold text-center"
+                style={{ fontSize: 19, letterSpacing: "-0.015em", lineHeight: 1.3 }}
+              >
                 {t.titre}
               </div>
-              <div className="mt-2" style={{ color: "rgba(255,255,255,0.78)", fontSize: 14.5, lineHeight: 1.55 }}>
-                {t.corps}
-              </div>
               {t.qr && (
-                <div className="mt-4 flex justify-center">
-                  <div className="rounded-lg" style={{ background: "#fff", padding: 7 }}>
-                    <img src={t.qr} alt={`QR ${t.titre}`} style={{ width: 104, height: 104, display: "block" }} />
+                <div className="mt-5 flex justify-center">
+                  <div className="rounded-xl" style={{ background: "#fff", padding: 10 }}>
+                    <img
+                      src={t.qr}
+                      alt={`QR ${t.titre}`}
+                      style={{ width: "100%", maxWidth: 210, aspectRatio: "1 / 1", display: "block" }}
+                    />
                   </div>
                 </div>
               )}
