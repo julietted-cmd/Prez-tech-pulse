@@ -348,7 +348,7 @@ export const SIGNAUX = [
   },
   {
     titre: "L'IA s'installe dans les postes, pas dans les intitulés",
-    corps: "512 annonces mentionnent l'IA, mais sa part reste à 8 % depuis juin. Le poste dédié, lui, recule de 9,7 %. La compétence se diffuse, l'étiquette ne prend pas.",
+    corps: "591 annonces demandent une compétence IA, soit 9,3 % du marché. Mais la part de celles qui l'affichent dès l'intitulé reste bloquée à 8 % depuis juin, et le poste dédié recule de 9,7 %. La compétence se diffuse, l'étiquette ne prend pas.",
     couleur: "var(--indigo)",
   },
 ];

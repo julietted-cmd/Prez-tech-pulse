@@ -634,12 +634,13 @@ export const SLIDES = [
           <div>
             <BigNum value={220} active={active} unite="annonces exigent la compétence IA" color="#A19DFF" />
             <Corps className="mt-6">
-              Et 371 de plus la mentionnent sans l'exiger. L'IA apparaît dans 512 annonces au total, soit une sur huit.
+              Et {IA.mentionnee} de plus la mentionnent sans l'exiger : {IA.requise + IA.mentionnee} annonces demandent
+              une compétence IA, soit {fmtDec(((IA.requise + IA.mentionnee) / VOLUME.serie[VOLUME.serie.length - 1]) * 100)} %.
             </Corps>
           </div>
           <div>
             <div className="font-semibold mb-3" style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
-              Part des annonces mentionnant l'IA
+              Part des annonces dont l'intitulé mentionne l'IA
             </div>
             <Sparkline serie={IA.part} labels={MONTHS} color="#A19DFF" height={70} baseZero />
             <div className="tnum mt-3" style={{ color: "rgba(255,255,255,0.45)", fontSize: 13.5 }}>
