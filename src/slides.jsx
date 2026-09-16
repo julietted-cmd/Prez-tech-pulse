@@ -500,9 +500,11 @@ export const SLIDES = [
           ))}
         </div>
         <Encadre titre="Ce n'est pas un effet de composition" ton="positif" className="mt-5">
-          Comparer la médiane parisienne à celle du reste de la France donne 15,0 K€ d'écart, mais ce chiffre mélange
-          des métiers différents : Paris concentre davantage de postes seniors. En neutralisant cet effet, métier par
-          métier, il reste {fmtDec(ECART_PARIS.constant)} K€. C'est bien le même poste qui est payé plus cher.
+          Si l'écart tenait à une concentration de postes seniors à Paris, il s'effondrerait dès qu'on compare chaque
+          métier avec lui-même. Il ne perd que {fmtDec(ECART_PARIS.brut - ECART_PARIS.constant)} K€ : sur les{" "}
+          {fmtDec(ECART_PARIS.brut)} K€ mesurés en brut, il en reste {fmtDec(ECART_PARIS.constant)} à poste identique.
+          Les {ECART_PARIS.metiers} métiers testés vont tous dans le même sens, de {fmtDec(ECART_PARIS.min)} K€ sur le{" "}
+          {ECART_PARIS.minNom} à {fmtDec(ECART_PARIS.max)} K€ sur le {ECART_PARIS.maxNom}.
         </Encadre>
       </Slide>
     ),
