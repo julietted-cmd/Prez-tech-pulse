@@ -322,9 +322,7 @@ export const SLIDES = [
         <Titre>Ce que ces chiffres ne mesurent pas</Titre>
         <div className="mt-8 grid sm:grid-cols-2 gap-4">
           {METHODE_LIMITES.map((l) => (
-            <Encadre key={l.titre} titre={l.titre} ton="alerte">
-              {l.corps}
-            </Encadre>
+            <Encadre key={l.titre} titre={l.titre} ton="alerte" />
           ))}
         </div>
       </Slide>
@@ -350,12 +348,6 @@ export const SLIDES = [
             <Corps>
               Tous les CDI tech, product, data et design publiés en France métropolitaine, après dédoublonnage.
             </Corps>
-            <Encadre titre="Le chiffre monte, le marché non" ton="alerte" className="mt-5">
-              {RUPTURE.captees} de ces annonces sont captées par un classifieur élargi ce mois-ci : elles existaient
-              avant, on ne les comptait pas. Ramené au périmètre d'août, septembre est à{" "}
-              {fmtNum(RUPTURE.perimetreConstant)} annonces contre {fmtNum(RUPTURE.totalAout)}, soit{" "}
-              {fmtDec(RUPTURE.varConstant)} %.
-            </Encadre>
           </div>
         </Deux>
       </Slide>
@@ -485,7 +477,6 @@ export const SLIDES = [
     chapitre: "insights",
     render: () => (
       <Slide>
-        <Kicker>Ce qui fait bouger le salaire</Kicker>
         <Titre>Le même poste vaut 12,8 K€ de plus à Paris</Titre>
         <div className="mt-7">
           {VILLES.map((v) => (
@@ -499,13 +490,6 @@ export const SLIDES = [
             />
           ))}
         </div>
-        <Encadre titre="Ce n'est pas un effet de composition" ton="positif" className="mt-5">
-          Si l'écart tenait à une concentration de postes seniors à Paris, il s'effondrerait dès qu'on compare chaque
-          métier avec lui-même. Il ne perd que {fmtDec(ECART_PARIS.brut - ECART_PARIS.constant)} K€ : sur les{" "}
-          {fmtDec(ECART_PARIS.brut)} K€ mesurés en brut, il en reste {fmtDec(ECART_PARIS.constant)} à poste identique.
-          Les {ECART_PARIS.metiers} métiers testés vont tous dans le même sens, de {fmtDec(ECART_PARIS.min)} K€ sur le{" "}
-          {ECART_PARIS.minNom} à {fmtDec(ECART_PARIS.max)} K€ sur le {ECART_PARIS.maxNom}.
-        </Encadre>
       </Slide>
     ),
   },
@@ -636,8 +620,9 @@ export const SLIDES = [
           <div>
             <BigNum value={220} active={active} unite="annonces exigent la compétence IA" color="#A19DFF" />
             <Corps className="mt-6">
-              Et {IA.mentionnee} de plus la mentionnent sans l'exiger : {IA.requise + IA.mentionnee} annonces demandent
-              une compétence IA, soit {fmtDec(((IA.requise + IA.mentionnee) / VOLUME.serie[VOLUME.serie.length - 1]) * 100)} %.
+              {IA.mentionnee} de plus la citent sans en faire un prérequis. Au total, {IA.requise + IA.mentionnee} annonces
+              font apparaître une compétence IA dans leur description, soit{" "}
+              {fmtDec(((IA.requise + IA.mentionnee) / VOLUME.serie[VOLUME.serie.length - 1]) * 100)} % du marché.
             </Corps>
           </div>
           <div>

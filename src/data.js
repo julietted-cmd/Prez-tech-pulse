@@ -113,10 +113,6 @@ export const METHODE_LIMITES = [
     titre: "Les salaires affichés ne sont pas les salaires perçus",
     corps: "11,4 % des annonces publient une fourchette, et ce sont surtout les grilles standardisées des ESN. Le déclaré est systématiquement au-dessus.",
   },
-  {
-    titre: "On ne sait pas si une annonce correspond à un poste réel",
-    corps: "Une partie des annonces publiées alimente un vivier plus qu'elle ne pourvoit un poste ouvert. Aucun moyen de mesurer cette part : on ne la retire pas, et on ne fait pas semblant qu'elle n'existe pas.",
-  },
 ];
 
 /* ---------- Comment s'en servir ---------- */

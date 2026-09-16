@@ -7,7 +7,11 @@ import { SLIDES } from "./slides.jsx";
 export const fmtNum = (v) =>
   Number(v).toLocaleString("fr-FR").replace(/\u202F|\u00A0/g, "\u2009");
 
-export const fmtDec = (v) => String(v).replace(".", ",");
+// Arrondi a 1 decimale AVANT formatage : les litteraux de data.js n'en ont
+// jamais plus, mais une expression calculee sur place (un ratio, une
+// difference de flottants) sortait sinon en 2,1999999999999993.
+export const fmtDec = (v) =>
+  String(typeof v === "number" ? Math.round(v * 10) / 10 : v).replace(".", ",");
 
 const prefersReduced = () =>
   typeof window !== "undefined" &&
@@ -206,11 +210,13 @@ export const Encadre = ({ children, titre, ton = "info", className = "", style =
       }}
     >
       {titre && (
-        <div className="font-semibold mb-1.5" style={{ color: t.titre, fontSize: 14.5, letterSpacing: "-0.005em" }}>
+        <div className={`font-semibold ${children ? "mb-1.5" : ""}`} style={{ color: t.titre, fontSize: 14.5, letterSpacing: "-0.005em" }}>
           {titre}
         </div>
       )}
-      <div style={{ color: "rgba(255,255,255,0.86)", fontSize: 14.5, lineHeight: 1.55 }}>{children}</div>
+      {children && (
+        <div style={{ color: "rgba(255,255,255,0.86)", fontSize: 14.5, lineHeight: 1.55 }}>{children}</div>
+      )}
     </div>
   );
 };
